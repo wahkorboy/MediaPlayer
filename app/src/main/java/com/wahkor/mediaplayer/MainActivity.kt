@@ -2,12 +2,14 @@ package com.wahkor.mediaplayer
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.wahkor.mediaplayer.model.TrackFile
+import kotlin.random.Random
 
 var TrackFileList=ArrayList<TrackFile>()
 class MainActivity : AppCompatActivity() {
@@ -69,6 +71,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
         cursor?.close()
+        mediaPlayer = MediaPlayer()
+        currentTrack.position= Random.nextInt(0, TrackFileList.size-1)
+        currentTrack.track= TrackFileList[currentTrack.position]
+        mediaPlayer.setDataSource(currentTrack.track.Uri)
+        mediaPlayer.prepare()
         val intent=Intent(this,PlayerActivity::class.java)
         startActivity(intent)
 
