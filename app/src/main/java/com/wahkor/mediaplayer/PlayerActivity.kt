@@ -1,7 +1,6 @@
 package com.wahkor.mediaplayer
 
 import android.annotation.SuppressLint
-import android.database.DataSetObserver
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,9 +10,8 @@ import android.view.ViewGroup
 import android.widget.*
 import com.wahkor.mediaplayer.model.CurrentTrack
 import com.wahkor.mediaplayer.model.TrackFile
-import org.w3c.dom.Text
 
-var currentTrack = CurrentTrack(TrackFile(), 0, false)
+var currentTrack = CurrentTrack(TrackFile(),)
 lateinit var mediaPlayer: MediaPlayer
 
 class PlayerActivity : AppCompatActivity() {
@@ -42,9 +40,7 @@ class PlayerActivity : AppCompatActivity() {
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    var duration = mediaPlayer.duration
-                    duration = (duration * progress / 100).toInt()
-                    mediaPlayer.seekTo(duration)
+                   mediaPlayer.seekTo(progress)
                 }
             }
 
@@ -54,14 +50,12 @@ class PlayerActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar) {
             }
         })
-        mediaPlayer.setOnCompletionListener {
-            Toast.makeText(this, "finish", Toast.LENGTH_SHORT).show()
-            nextClick(playBTN)
-        }
+        mediaPlayer.setOnCompletionListener {  nextClick(playBTN) }
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun initial() {
+        seekBar.max= mediaPlayer.duration
         if (currentTrack.isPlaying) {
             setRunnable()
         }
@@ -88,13 +82,13 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun preparePlayer() {
+        adapter.notifyDataSetChanged()
         mediaPlayer.pause()
         mediaPlayer.reset()
         currentTrack =
-            CurrentTrack(TrackFileList[currentTrack.position], currentTrack.position, false)
+            CurrentTrack(TrackFileList[currentTrack.position])
         mediaPlayer.setDataSource(currentTrack.track.Uri)
         mediaPlayer.prepare()
-        mediaPlayer.isLooping = true
         seekBar.max = mediaPlayer.duration
         setupPlayer()
     }
@@ -110,31 +104,21 @@ class PlayerActivity : AppCompatActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun setupPlayer() {
-        val toast = if (mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
-            "Pause"
-
-        } else {
-            mediaPlayer.start()
-            "Play"
-        }
+        if (mediaPlayer.isPlaying) { mediaPlayer.pause()} else {mediaPlayer.start()}
         currentTrack.isPlaying = mediaPlayer.isPlaying
         playBTN = currentTrack.setPlayButton(this, playBTN)
         titleView.text = currentTrack.title
-        setRunnable()
-        Toast.makeText(this, "$toast...${currentTrack.title}", Toast.LENGTH_SHORT).show()
-
-
+        //setRunnable()
     }
 
     private fun setRunnable() {
         var string = currentTrack.title!!+"              "
         runnable = Runnable {
-            seekBar.progress = mediaPlayer.currentPosition * 100 / mediaPlayer.duration
+            seekBar.progress = mediaPlayer.currentPosition
             tv_pass.text = getTimeInMinute(mediaPlayer.currentPosition)
             tv_due.text = getTimeInMinute(mediaPlayer.duration - mediaPlayer.currentPosition)
-            string = string.substring(5, string.length) + string.substring(0, 5)
-            titleView.text = string //if(string.length>70) string.substring(0,70) else string
+            string = string.substring(3, string.length) + string.substring(0, 3)
+            titleView.text = if(string.length>40) string.substring(0,40) else string
             //title.setTextColor(resources.getColor(R.color.text_run_color))
             handler.postDelayed(runnable, 1000)
 
@@ -163,6 +147,16 @@ class PlayerActivity : AppCompatActivity() {
             val title=view.findViewById<TextView>(R.id.playlistTitle)
             val song=playlistList[position]
             title.text=song.Title
+            if (currentTrack.track.Uri==playlistList[position].Uri){
+                view.setBackgroundColor(getColor(R.color.selected_playlist))
+            }
+            view.setOnClickListener {
+                mediaPlayer.pause()
+                currentTrack= CurrentTrack(playlistList[position])
+                currentTrack.position=position
+                preparePlayer()
+                initial()
+            }
             return view
         }
 

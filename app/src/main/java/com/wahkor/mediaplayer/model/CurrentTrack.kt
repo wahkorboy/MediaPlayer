@@ -8,10 +8,10 @@ import com.wahkor.mediaplayer.TrackFileList
 import com.wahkor.mediaplayer.currentTrack
 
 data class CurrentTrack(
-    var track:TrackFile,
-    var position:Int,
-    var isPlaying:Boolean,
+    var track:TrackFile
 ){
+    var position:Int=0
+    var isPlaying:Boolean=false
     fun setPlayButton(context: Context, playBTN:ImageView):ImageView{
         if(this.isPlaying){
             playBTN.setImageDrawable(getDrawable(context,R.drawable.ic_baseline_pause))
