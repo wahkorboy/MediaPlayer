@@ -1,6 +1,5 @@
 package com.wahkor.mediaplayer
 
-import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -59,8 +58,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun initial() {
-        if (isInitial) {
-        }
         isInitial=true
         seekBar.max = mediaPlayer.duration
         adapter.notifyDataSetChanged()
@@ -137,7 +134,7 @@ private fun getNewPosition(position: Int){
     }
 
     private fun setRunnable() {
-        var string = TrackFileList[currentTrack].Title!!
+        val string = TrackFileList[currentTrack].Title!!
         titleView.text = if(string.length>40) string.substring(0,40) else string
 
         runnable = Runnable {
