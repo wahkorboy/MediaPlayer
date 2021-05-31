@@ -5,36 +5,41 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.wahkor.mediaplayer.model.CurrentTrack
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.model.TrackFile
 
-var currentTrack = CurrentTrack(TrackFile(),)
+var currentTrack = 0
 lateinit var mediaPlayer: MediaPlayer
 
+@Suppress("DEPRECATION")
 class PlayerActivity : AppCompatActivity() {
+    private var isInitial=false
     private lateinit var runnable: Runnable
     private var handler: Handler = Handler()
-    private lateinit var tv_pass: TextView
-    private lateinit var tv_due: TextView
+    private lateinit var tvPass: TextView
+    private lateinit var tvDue: TextView
     private lateinit var playBTN: ImageView
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
-    private lateinit var playlistListView: ListView
-    private var adapter= playListAdapter(TrackFileList)
+    private lateinit var playlistListView: RecyclerView
+    private var adapter= PlayListRecyclerAdapter(TrackFileList)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
         playBTN = findViewById(R.id.playerPlay)
         titleView = findViewById(R.id.playerTitle)
-        tv_due = findViewById(R.id.tv_due)
-        tv_pass = findViewById(R.id.tv_pass)
+        tvDue = findViewById(R.id.tv_due)
+        tvPass = findViewById(R.id.tv_pass)
         seekBar = findViewById(R.id.playerSeekbar)
         playlistListView=findViewById(R.id.playerListView)
+        playlistListView.layoutManager=LinearLayoutManager(this)
         playlistListView.adapter=adapter
-        adapter.notifyDataSetInvalidated()
         initial()
         //SeekBar
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -53,44 +58,67 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer.setOnCompletionListener {  nextClick(playBTN) }
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     private fun initial() {
-        seekBar.max= mediaPlayer.duration
-        if (currentTrack.isPlaying) {
+        if (isInitial) {
+        }
+        isInitial=true
+        seekBar.max = mediaPlayer.duration
+        adapter.notifyDataSetChanged()
+        if (mediaPlayer.isPlaying) {
             setRunnable()
         }
-        playBTN = currentTrack.setPlayButton(this, playBTN)
-        titleView.text = currentTrack.title
+        setPlayButton()
+        titleView.text = TrackFileList[currentTrack].Title
     }
 
 
+    private fun setPlayButton( ){
+        if(mediaPlayer.isPlaying){
+            playBTN.setImageDrawable(
+                ContextCompat.getDrawable(this,
+                    R.drawable.ic_baseline_pause
+                )
+            )
+
+        }else{
+            playBTN.setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.ic_baseline_play
+                )
+            )
+        }
+
+    }
     fun playClick(view: View) {
 
         setupPlayer()
+        initial()
     }
 
     fun prevClick(view: View) {
-        currentTrack.position =
-            if (currentTrack.position == 0) TrackFileList.size - 1 else currentTrack.position - 1
+        getNewPosition(currentTrack-1)
         preparePlayer()
     }
 
     fun nextClick(view: View) {
-        currentTrack.position =
-            if (currentTrack.position == TrackFileList.size - 1) 0 else currentTrack.position + 1
+        getNewPosition(currentTrack+1)
         preparePlayer()
     }
-
+private fun getNewPosition(position: Int){
+    currentTrack= when {
+        position<0 -> TrackFileList.size-1
+        position> TrackFileList.size-1 -> 0
+        else -> position
+    }
+}
     private fun preparePlayer() {
-        adapter.notifyDataSetChanged()
         mediaPlayer.pause()
         mediaPlayer.reset()
-        currentTrack =
-            CurrentTrack(TrackFileList[currentTrack.position])
-        mediaPlayer.setDataSource(currentTrack.track.Uri)
+        mediaPlayer.setDataSource(TrackFileList[currentTrack].Uri)
         mediaPlayer.prepare()
-        seekBar.max = mediaPlayer.duration
         setupPlayer()
+        initial()
     }
 
     private fun getTimeInMinute(time: Int): String {
@@ -102,24 +130,20 @@ class PlayerActivity : AppCompatActivity() {
         return "${if (hours == 0) "" else "$hours:"}${if (minutes < 10) "0$minutes:" else "$minutes:"}${if (secs < 10) "0$secs" else "$secs"}"
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
     private fun setupPlayer() {
         if (mediaPlayer.isPlaying) { mediaPlayer.pause()} else {mediaPlayer.start()}
-        currentTrack.isPlaying = mediaPlayer.isPlaying
-        playBTN = currentTrack.setPlayButton(this, playBTN)
-        titleView.text = currentTrack.title
-        //setRunnable()
+        setPlayButton()
+        titleView.text = TrackFileList[currentTrack].Title
     }
 
     private fun setRunnable() {
-        var string = currentTrack.title!!+"              "
+        var string = TrackFileList[currentTrack].Title!!
+        titleView.text = if(string.length>40) string.substring(0,40) else string
+
         runnable = Runnable {
             seekBar.progress = mediaPlayer.currentPosition
-            tv_pass.text = getTimeInMinute(mediaPlayer.currentPosition)
-            tv_due.text = getTimeInMinute(mediaPlayer.duration - mediaPlayer.currentPosition)
-            string = string.substring(3, string.length) + string.substring(0, 3)
-            titleView.text = if(string.length>40) string.substring(0,40) else string
-            //title.setTextColor(resources.getColor(R.color.text_run_color))
+            tvPass.text = getTimeInMinute(mediaPlayer.currentPosition)
+            tvDue.text = getTimeInMinute(mediaPlayer.duration - mediaPlayer.currentPosition)
             handler.postDelayed(runnable, 1000)
 
         }
@@ -129,37 +153,41 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
     }
-    inner class playListAdapter(var playlistList:ArrayList<TrackFile>):BaseAdapter(){
-        override fun getCount(): Int {
+    inner class PlayListRecyclerAdapter(private var playlistList: ArrayList<TrackFile>):RecyclerView.Adapter<PlayListViewHolder>(){
+
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayListViewHolder {
+            val itemView:View=LayoutInflater.from(parent.context).inflate(R.layout.play_list_layout,parent,false)
+            return PlayListViewHolder(itemView)
+        }
+
+        override fun getItemCount(): Int {
             return playlistList.size
         }
 
-        override fun getItem(position: Int): Any {
-            return playlistList[position]
-        }
-
-        override fun getItemId(position: Int): Long {
-            return position.toLong()
-        }
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val view=View.inflate(this@PlayerActivity,R.layout.play_list_layout,null)
-            val title=view.findViewById<TextView>(R.id.playlistTitle)
+        override fun onBindViewHolder(holder: PlayListViewHolder, position: Int) {
             val song=playlistList[position]
-            title.text=song.Title
-            if (currentTrack.track.Uri==playlistList[position].Uri){
-                view.setBackgroundColor(getColor(R.color.selected_playlist))
-            }
-            view.setOnClickListener {
-                mediaPlayer.pause()
-                currentTrack= CurrentTrack(playlistList[position])
-                currentTrack.position=position
-                preparePlayer()
-                initial()
-            }
-            return view
+            holder.binding(song)
         }
 
     }
+    inner class PlayListViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
+        private val titlePlaylist: TextView =itemView.findViewById(R.id.playlistTitle)
+        fun binding(track:TrackFile){
+            titlePlaylist.text=track.Title
+            if (TrackFileList[currentTrack].Uri==track.Uri){
+                itemView.setBackgroundColor(getColor(R.color.selected_playlist))
+            }else{
+                itemView.setBackgroundColor(getColor(R.color.unselected_playlist))
 
+            }
+            itemView.setOnClickListener {
+                mediaPlayer.pause()
+                currentTrack=position
+                preparePlayer()
+                initial()
+            }
+        }
+
+    }
 }

@@ -72,9 +72,8 @@ class MainActivity : AppCompatActivity() {
         }
         cursor?.close()
         mediaPlayer = MediaPlayer()
-        val position= Random.nextInt(0, TrackFileList.size-1)
-        currentTrack.track= TrackFileList[position]
-        mediaPlayer.setDataSource(currentTrack.track.Uri)
+        currentTrack= Random.nextInt(0, TrackFileList.size-1)
+        mediaPlayer.setDataSource(TrackFileList[currentTrack].Uri)
         mediaPlayer.prepare()
         val intent=Intent(this,PlayerActivity::class.java)
         startActivity(intent)
