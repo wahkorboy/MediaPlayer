@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.wahkor.mediaplayer.model.CurrentTrack
 import com.wahkor.mediaplayer.model.TrackFile
-
+//test
 var currentTrack = CurrentTrack(TrackFile(),)
 lateinit var mediaPlayer: MediaPlayer
 
