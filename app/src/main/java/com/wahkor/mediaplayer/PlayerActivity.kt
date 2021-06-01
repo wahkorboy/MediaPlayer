@@ -1,13 +1,14 @@
 package com.wahkor.mediaplayer
 
+import android.content.res.Configuration
 import android.media.MediaPlayer
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,6 +59,14 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun initial() {
+        val orientation = resources.configuration.orientation
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // In landscape
+            playlistListView.visibility=View.GONE
+        } else {
+            // In portrait
+            playlistListView.visibility=View.VISIBLE
+        }
         isInitial=true
         seekBar.max = mediaPlayer.duration
         adapter.notifyDataSetChanged()
