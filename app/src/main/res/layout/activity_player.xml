@@ -66,10 +66,98 @@
             android:onClick="nextClick"/>
 
     </LinearLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/playerListView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/playerDetailLayout"
+        android:visibility="gone"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:text="NAME"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:textSize="15dp"
+                android:id="@+id/playerDetail_name" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:text="ARTIST"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:textSize="15dp"
+                android:id="@+id/playerDetail_artist" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:text="ALBUM"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:textSize="15dp"
+                android:id="@+id/playerDetail_album" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:text="DURATION"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:textSize="15dp"
+                android:id="@+id/playerDetail_duration" />
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/playerPlaylistLayout"
+        >
+        <ImageView
+            android:layout_width="match_parent"
+            android:src="@drawable/ic_baseline_arrow_drop_down_24"
+            android:layout_height="50dp"
+            android:onClick="playListDropDown"
+            android:id="@+id/playerShowDetail"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/playerListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
 
 </LinearLayout>

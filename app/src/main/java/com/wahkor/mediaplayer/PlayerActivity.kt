@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wahkor.mediaplayer.model.TrackFile
+import com.wahkor.mediaplayer.model.Song
 
-var currentTrack = 0
+var currentSong = 0
 lateinit var mediaPlayer: MediaPlayer
 
 @Suppress("DEPRECATION")
@@ -28,7 +28,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
     private lateinit var playlistListView: RecyclerView
-    private var adapter= PlayListRecyclerAdapter(TrackFileList)
+    private var adapter= PlayListRecyclerAdapter(SongList)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
@@ -65,6 +65,7 @@ class PlayerActivity : AppCompatActivity() {
             playlistListView.visibility=View.GONE
         } else {
             // In portrait
+            setPlayerDetail()
             playlistListView.visibility=View.VISIBLE
         }
         isInitial=true
@@ -74,7 +75,7 @@ class PlayerActivity : AppCompatActivity() {
             setRunnable()
         }
         setPlayButton()
-        titleView.text = TrackFileList[currentTrack].Title
+        titleView.text = SongList[currentSong].TITLE
     }
 
 
@@ -103,25 +104,25 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     fun prevClick(view: View) {
-        getNewPosition(currentTrack-1)
+        getNewPosition(currentSong-1)
         preparePlayer()
     }
 
     fun nextClick(view: View) {
-        getNewPosition(currentTrack+1)
+        getNewPosition(currentSong+1)
         preparePlayer()
     }
 private fun getNewPosition(position: Int){
-    currentTrack= when {
-        position<0 -> TrackFileList.size-1
-        position> TrackFileList.size-1 -> 0
+    currentSong= when {
+        position<0 -> SongList.size-1
+        position> SongList.size-1 -> 0
         else -> position
     }
 }
     private fun preparePlayer() {
         mediaPlayer.pause()
         mediaPlayer.reset()
-        mediaPlayer.setDataSource(TrackFileList[currentTrack].Uri)
+        mediaPlayer.setDataSource(SongList[currentSong].DATA)
         mediaPlayer.prepare()
         setupPlayer()
         initial()
@@ -139,11 +140,11 @@ private fun getNewPosition(position: Int){
     private fun setupPlayer() {
         if (mediaPlayer.isPlaying) { mediaPlayer.pause()} else {mediaPlayer.start()}
         setPlayButton()
-        titleView.text = TrackFileList[currentTrack].Title
+        titleView.text = SongList[currentSong].TITLE
     }
 
     private fun setRunnable() {
-        val string = TrackFileList[currentTrack].Title!!
+        val string = SongList[currentSong].TITLE!!
         titleView.text = if(string.length>40) string.substring(0,40) else string
 
         runnable = Runnable {
@@ -159,7 +160,7 @@ private fun getNewPosition(position: Int){
 
     override fun onBackPressed() {
     }
-    inner class PlayListRecyclerAdapter(private var playlistList: ArrayList<TrackFile>):RecyclerView.Adapter<PlayListViewHolder>(){
+    inner class PlayListRecyclerAdapter(private var playlistList: ArrayList<Song>):RecyclerView.Adapter<PlayListViewHolder>(){
 
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayListViewHolder {
@@ -179,9 +180,9 @@ private fun getNewPosition(position: Int){
     }
     inner class PlayListViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
         private val titlePlaylist: TextView =itemView.findViewById(R.id.playlistTitle)
-        fun binding(track:TrackFile){
-            titlePlaylist.text=track.Title
-            if (TrackFileList[currentTrack].Uri==track.Uri){
+        fun binding(track:Song){
+            titlePlaylist.text=track.TITLE
+            if (SongList[currentSong].DATA==track.DATA){
                 itemView.setBackgroundColor(getColor(R.color.selected_playlist))
             }else{
                 itemView.setBackgroundColor(getColor(R.color.unselected_playlist))
@@ -189,11 +190,29 @@ private fun getNewPosition(position: Int){
             }
             itemView.setOnClickListener {
                 mediaPlayer.pause()
-                currentTrack=position
+                currentSong=position
                 preparePlayer()
                 initial()
             }
         }
 
     }
+private fun setPlayerDetail(){
+    val song=SongList[currentSong]
+    findViewById<TextView>(R.id.playerDetail_name).text=song.TITLE
+    findViewById<TextView>(R.id.playerDetail_artist).text= song.ARTIST
+    findViewById<TextView>(R.id.playerDetail_album).text=song.ALBUM
+    findViewById<TextView>(R.id.playerDetail_duration).text= getTimeInMinute(song.DURATION!!.toInt())
 }
+    fun playListDropDown(view: View) {
+        val detail=findViewById<LinearLayout>(R.id.playerDetailLayout)
+        val show=findViewById<ImageView>(R.id.playerShowDetail)
+        if(detail.visibility==View.VISIBLE){
+            detail.visibility=View.GONE
+            show.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
+        }else{
+            detail.visibility=View.VISIBLE
+            show.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
+        }
+
+    }}

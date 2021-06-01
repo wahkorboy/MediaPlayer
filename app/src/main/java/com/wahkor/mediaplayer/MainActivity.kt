@@ -3,15 +3,14 @@ package com.wahkor.mediaplayer
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.wahkor.mediaplayer.model.TrackFile
+import com.wahkor.mediaplayer.model.Song
 import kotlin.random.Random
 
-var TrackFileList=ArrayList<TrackFile>()
+var SongList=ArrayList<Song>()
 class MainActivity : AppCompatActivity() {
     private val requestAskCode = 1159
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,26 +53,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadMusic() {
-        TrackFileList.clear()
+        val columns = arrayOf(
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.ALBUM_ID,
+            MediaStore.Audio.Media.TRACK,
+            MediaStore.Audio.Media.ARTIST_ID,
+            MediaStore.Audio.Media.DISPLAY_NAME
+        )
+
+        SongList.clear()
         val allMusic = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection=MediaStore.Audio.Media.IS_MUSIC
         val cursor=contentResolver.query(allMusic,null,selection,null,null)
         if(cursor != null){
             while (cursor.moveToNext()){
-                TrackFileList.add(
-                    TrackFile(
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)),
-
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)),
-                        cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
+                var item=0
+                SongList.add(
+                    Song(
+                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
+                        cursor.getInt(cursor.getColumnIndex(columns[item++])),
+                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item]))
                     )
                 )
             }
         }
         cursor?.close()
         mediaPlayer = MediaPlayer()
-        currentTrack= Random.nextInt(0, TrackFileList.size-1)
-        mediaPlayer.setDataSource(TrackFileList[currentTrack].Uri)
+        currentSong= Random.nextInt(0, SongList.size-1)
+        mediaPlayer.setDataSource(SongList[currentSong].DATA)
         mediaPlayer.prepare()
         val intent=Intent(this,PlayerActivity::class.java)
         startActivity(intent)
