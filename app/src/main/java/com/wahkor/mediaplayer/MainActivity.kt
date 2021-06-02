@@ -71,10 +71,12 @@ class MainActivity : AppCompatActivity() {
         val selection=MediaStore.Audio.Media.IS_MUSIC
         val cursor=contentResolver.query(allMusic,null,selection,null,null)
         if(cursor != null){
+            var time=0
             while (cursor.moveToNext()){
                 var item=0
                 SongList.add(
-                    Song(
+                    Song(time++,
+                        false,
                         cursor.getLong(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
@@ -88,14 +90,15 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
             }
+            cursor?.close()
+            mediaPlayer = MediaPlayer()
+            currentSong= Random.nextInt(0, SongList.size-1)
+            mediaPlayer.setDataSource(SongList[currentSong].DATA)
+            mediaPlayer.prepare()
+            SongList[currentSong].isPlaying=true
+            val intent=Intent(this,PlayMusicByFileActivity::class.java)
+            startActivity(intent)
         }
-        cursor?.close()
-        mediaPlayer = MediaPlayer()
-        currentSong= Random.nextInt(0, SongList.size-1)
-        mediaPlayer.setDataSource(SongList[currentSong].DATA)
-        mediaPlayer.prepare()
-        val intent=Intent(this,PlayerActivity::class.java)
-        startActivity(intent)
 
     }
 

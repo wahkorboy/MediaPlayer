@@ -13,16 +13,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
-import android.view.View
 import android.widget.SeekBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivityPlayMusicByFileBinding
+import com.wahkor.mediaplayer.model.Song
 import java.io.File
 
 
 class PlayMusicByFileActivity : AppCompatActivity() {
     val mp=MediaPlayer()
+    private lateinit var db:PlayerSQL
+    private lateinit var Playlist:ArrayList<Song>
     private lateinit var runnable: Runnable
     private var handler: Handler = Handler()
     private  val  view:ActivityPlayMusicByFileBinding by lazy {
@@ -31,6 +33,10 @@ class PlayMusicByFileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
+        Playlist=db.allPlayList
+        if(Playlist.size ==0 ){
+            Playlist= SongList
+        }
         val data = intent.data
         if (data != null && intent.action != null &&
             intent.action.equals(Intent.ACTION_VIEW)
