@@ -148,13 +148,16 @@
             android:src="@drawable/ic_baseline_arrow_drop_down_24"
             android:layout_height="50dp"
             android:id="@+id/thesongShowDetail"/>
+
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/thesongListView11"
-            android:layout_width="match_parent"
-            android:visibility="gone"
-            android:layout_height="wrap_content" />
-        <ListView
             android:id="@+id/thesongListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:itemCount="25"
+            tools:listitem="@layout/recycler_view_item" />
+        <ListView
+            android:id="@+id/thesongListView11"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
