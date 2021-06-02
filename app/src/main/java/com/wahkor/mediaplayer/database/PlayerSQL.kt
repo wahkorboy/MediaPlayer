@@ -9,10 +9,10 @@ import com.wahkor.mediaplayer.model.Song
 
 class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null, databaseVersion) {
     companion object {
-        const val databaseName = "player.db"
+        const val databaseName = "player001.db"
         const val databaseVersion = 1
-        private const val tablePlaylist = "playlist"
-        private const val col_order = "order"
+        private const val TABLE_NAME = "playlist"
+        private const val col_order = "row"
         private const val col_isPlaying = "is_playing"
         private const val col__ID = "id"
         private const val col_TITLE = "title"
@@ -24,11 +24,11 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
         private const val col_TRACK = "track"
         private const val col_ARTIST_ID = "artist_id"
         private const val col_DISPLAY_NAME = "display_name"
-        const val CreatePlaylistTable="CREATE TABLE $tablePlaylist(" +
-                "$col_order INTEGER ,$col_isPlaying INTEGER ,$col__ID INTEGER,$col_TITLE TEXT," +
-                "$col_ARTIST TEXT,$col_DURATION INTEGER,$col_DATA TEXT PRIMARY KEY,$col_ALBUM TEXT,$col_ALBUM_ID INTEGER," +
-                "$col_TRACK INTEGER,$col_ARTIST_ID INTEGER,$col_DISPLAY_NAME TEXT" +
-                ")"
+        const val CreatePlaylistTable="CREATE TABLE $TABLE_NAME ( " +
+                "$col_order INTEGER , $col_isPlaying INTEGER , $col__ID INTEGER , $col_TITLE TEXT , " +
+                " $col_ARTIST TEXT , $col_DURATION INTEGER , $col_DATA TEXT , $col_ALBUM TEXT , $col_ALBUM_ID INTEGER , " +
+                " $col_TRACK INTEGER , $col_ARTIST_ID INTEGER , $col_DISPLAY_NAME TEXT ) "
+
 
     }
 
@@ -37,17 +37,17 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db!!.execSQL("DROP TABLE IF EXISTS $tablePlaylist")
+        db!!.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         onCreate(db)
     }
     fun addPlaylist(list:ArrayList<Song>){
-        val db = this.writableDatabase
+        val db = this.writableDatabase!!
         if (list.size>0){
             var time=0
             while (time<list.size){
                 val song=list[time++]
                 val values=getPlaylistValues(song)
-                db.insert(tablePlaylist,null,values)
+                db.insert(TABLE_NAME,null,values)
             }
         }
         db.close()
@@ -59,7 +59,7 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
             while (time<list.size){
                 val song=list[time++]
                 val values=getPlaylistValues(song)
-                db.update(tablePlaylist,values,"$col_DATA=?", arrayOf(song.DATA))
+                db.update(TABLE_NAME,values,"$col_DATA=?", arrayOf(song.DATA))
             }
         }
         db.close()
@@ -70,23 +70,20 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
             var time=0
             while (time<list.size){
                 val song=list[time++]
-                db.delete(tablePlaylist,"$col_DATA=?", arrayOf(song.DATA))
+                db.delete(TABLE_NAME,"$col_DATA=?", arrayOf(song.DATA))
             }
         }
         db.close()
     }
-
     val allPlayList: ArrayList<Song>
         get() {
             val list=ArrayList<Song>()
             val db=this.writableDatabase
-            val queryString="SELECT * FROM $tablePlaylist"
+            val queryString="SELECT * FROM $TABLE_NAME"
             val cursor=db.rawQuery(queryString,null)
             if(cursor != null){
                 while (cursor.moveToNext()){
-                    list.add(
-                        getSong(cursor)
-                    )
+                    list.add(getSong(cursor))
                 }
                 cursor.close()
 
@@ -95,22 +92,22 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
             return list
         }
     fun singlePlayList(uri:String): ArrayList<Song>{
-            val list=ArrayList<Song>()
-            val db=this.writableDatabase
-            val queryString="SELECT * FROM $tablePlaylist WHERE $col_DATA=$uri"
-            val cursor=db.rawQuery(queryString,null)
-            if(cursor != null){
-                while (cursor.moveToNext()){
-                    list.add(
-                        getSong(cursor)
-                    )
-                }
-                cursor.close()
-
+        val list=ArrayList<Song>()
+        val db=this.writableDatabase
+        val queryString="SELECT * FROM $TABLE_NAME WHERE $col_DATA=$uri"
+        val cursor=db.rawQuery(queryString,null)
+        if(cursor != null){
+            while (cursor.moveToNext()){
+                list.add(
+                    getSong(cursor)
+                )
             }
+            cursor.close()
 
-            return list
         }
+
+        return list
+    }
     private fun getPlaylistValues(song:Song):ContentValues{
         val values=ContentValues()
         values.put(col_order,song.order)

@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer.setDataSource(SongList[currentSong].DATA)
             mediaPlayer.prepare()
             SongList[currentSong].isPlaying=true
-            val intent=Intent(this,PlayMusicByFileActivity::class.java)
+            val intent=Intent(this,TheSongActivity::class.java)
             startActivity(intent)
         }
 

@@ -14,16 +14,16 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.MediaStore
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivityPlayMusicByFileBinding
 import com.wahkor.mediaplayer.model.Song
-import java.io.File
 
 
 class PlayMusicByFileActivity : AppCompatActivity() {
     val mp=MediaPlayer()
-    private lateinit var db:PlayerSQL
+   // private lateinit var db:PlayerSQL
     private lateinit var Playlist:ArrayList<Song>
     private lateinit var runnable: Runnable
     private var handler: Handler = Handler()
@@ -33,9 +33,12 @@ class PlayMusicByFileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
-        Playlist=db.allPlayList
+       // db= PlayerSQL(this)
+        /*Playlist=db.allPlayList
         if(Playlist.size ==0 ){
             Playlist= SongList
+            db.addPlaylist(Playlist)
+
         }
         val data = intent.data
         if (data != null && intent.action != null &&
@@ -71,7 +74,9 @@ class PlayMusicByFileActivity : AppCompatActivity() {
 
             })
 
-        }
+        }else{
+        }*/
+        Toast.makeText(this,"Playlist ${Playlist.size}",Toast.LENGTH_LONG).show()
     }
 
     private fun initial() {
@@ -99,7 +104,7 @@ class PlayMusicByFileActivity : AppCompatActivity() {
         handler.postDelayed(runnable, 1000)
 
     }
-    fun getRealPathFromURI(context: Context, contentUri: Uri): String {
+    private fun getRealPathFromURI(context: Context, contentUri: Uri): String {
             val proj = arrayOf(MediaStore.Audio.Media.TITLE)
             val cursor = context.contentResolver.query(contentUri, proj, null, null, null)
             return if (cursor != null){
