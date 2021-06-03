@@ -11,6 +11,7 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
+        <activity android:name=".SleepTimeActivity"></activity>
         <activity android:name=".TheSongActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -25,7 +26,8 @@
                 <data android:mimeType="application/ogg" />
                 <data android:mimeType="application/x-ogg" />
                 <data android:mimeType="application/itunes" />
-            </intent-filter></activity>
+            </intent-filter>
+        </activity>
         <activity android:name=".PlayMusicByFileActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -49,6 +51,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".receiver.SleepTimeReceiver" android:enabled="true" />
     </application>
 
 </manifest>

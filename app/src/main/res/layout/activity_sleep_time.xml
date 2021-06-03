@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_margin="15dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SleepTimeActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="35dp"
+        android:text="Sleep Time"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/delayTimelayoute"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/delay15"
+            android:text="15 Min"
+            style="@style/sleepBtn" />
+        <Button
+            android:id="@+id/delay30"
+            android:text="30 Min"
+            style="@style/sleepBtn" />
+        <Button
+            android:id="@+id/delay60"
+            android:text="60 Min"
+            style="@style/sleepBtn" />
+        <Button
+            android:text="Manual"
+            android:id="@+id/manualTime"
+            style="@style/sleepBtn" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/everydayLayout"
+        android:orientation="horizontal"
+        >
+        <Switch
+            android:layout_width="wrap_content"
+            android:id="@+id/repeatEveryday"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repeat Everyday"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/everytimeLayout"
+        android:orientation="horizontal"
+        >
+        <Switch
+            android:layout_width="wrap_content"
+            android:id="@+id/repeatTime"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repeat Time"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/everyTimeAfterLayout"
+        android:orientation="horizontal"
+        >
+        <Switch
+            android:layout_width="wrap_content"
+            android:id="@+id/repeatTimeAfter"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repeat Time After"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:backgroundTint="@color/unselected_btn"
+            android:text="set"
+            android:id="@+id/setAfter" />
+    </LinearLayout>
+
+
+</LinearLayout>

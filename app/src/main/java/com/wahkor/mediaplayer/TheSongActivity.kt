@@ -72,7 +72,9 @@ class TheSongActivity : AppCompatActivity(),SettingClick{
             else ++playPosition
             setItemClick(item)
         }
-        view.setting.setOnClickListener {setOnSettingClick(this,PopupMenu(this,view.setting)) }
+        view.setting.setOnClickListener {setOnSettingClick(this,PopupMenu(this,view.setting)){
+            intent -> startActivity(intent)
+        } }
         mp.setOnCompletionListener {
             if (isPlayEnable){
                 val item=if(playPosition==songList.size-1) 0
@@ -122,14 +124,6 @@ private fun initial(){
         handles.postDelayed(runnable,1000)
     }
 
-    private fun getMinite(time: Int): CharSequence? {
-        var secs = time / 1000
-        var minutes = secs / 60
-        val hours = minutes / 60
-        minutes -= hours * 60
-        secs = secs - minutes * 60 - hours * 60 * 60
-        return "${if (hours == 0) "" else "$hours:"}${if (minutes < 10) "0$minutes:" else "$minutes:"}${if (secs < 10) "0$secs" else "$secs"}"
-    }
 
     private fun setItemClick(position: Int) {
         var time=0
@@ -167,4 +161,13 @@ private fun initial(){
 }
 fun Activity.toast(text:String){
     Toast.makeText(this,text,Toast.LENGTH_LONG).show()
+}
+
+fun Activity.getMinite(time: Int): CharSequence? {
+    var secs = time / 1000
+    var minutes = secs / 60
+    val hours = minutes / 60
+    minutes -= hours * 60
+    secs = secs - minutes * 60 - hours * 60 * 60
+    return "${if (hours == 0) "" else "$hours:"}${if (minutes < 10) "0$minutes:" else "$minutes:"}${if (secs < 10) "0$secs" else "$secs"}"
 }
