@@ -155,11 +155,6 @@
             android:layout_height="wrap_content"
             tools:itemCount="25"
             tools:listitem="@layout/recycler_view_item" />
-        <ListView
-            android:id="@+id/thesongListView11"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

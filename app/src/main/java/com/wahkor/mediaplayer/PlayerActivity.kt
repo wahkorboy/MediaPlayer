@@ -209,7 +209,7 @@ private fun setPlayerDetail(){
     findViewById<TextView>(R.id.playerDetail_album).text=song.ALBUM
     findViewById<TextView>(R.id.playerDetail_duration).text= getTimeInMinute(song.DURATION!!.toInt())
 }
-    fun playListDropDown(view: View) {
+    fun playListDropDown() {
         val detail=findViewById<LinearLayout>(R.id.playerDetailLayout)
         val show=findViewById<ImageView>(R.id.playerShowDetail)
         if(detail.visibility==View.VISIBLE){

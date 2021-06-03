@@ -5,8 +5,8 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.widget.SeekBar
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
 import com.wahkor.mediaplayer.database.PlayerSQL
@@ -78,6 +78,7 @@ class TheSongActivity : AppCompatActivity(){
                 setItemClick(item)
             }
         }
+        view.thesongShowDetail.setOnClickListener { playListDropDown() }
         view.thesongSeekbar.setOnSeekBarChangeListener(object:SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(isPlayEnable && mp.isPlaying && fromUser){
@@ -102,9 +103,9 @@ private fun initial(){
         mp.setDataSource(song.DATA)
         mp.prepare()
         isPlayEnable=true
-        view.thesongTitle.text=song.TITLE
         adapter.notifyDataSetChanged()
         setRunnable()
+        setDetail()
     }
 }
 
@@ -140,6 +141,26 @@ private fun initial(){
 
     }
 
+    private fun setDetail(){
+        val song=songList[playPosition]
+        view.thesongTitle.text=song.TITLE
+        view.thesongDetailName.text=song.TITLE
+        view.thesongDetailArtist.text= song.ARTIST
+        view.thesongDetailAlbum.text=song.ALBUM
+        view.thesongDetailDuration.text= getMinite(mp.duration)
+    }
+    private fun playListDropDown() {
+       val detail=view.thesongDetailLayout
+        val icon=view.thesongShowDetail
+        if (detail.visibility==View.VISIBLE){
+            detail.visibility=View.GONE
+            icon.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
+        }else{
+            detail.visibility=View.VISIBLE
+            icon.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
+        }
+
+    }
 
 }
 fun Activity.toast(text:String){
