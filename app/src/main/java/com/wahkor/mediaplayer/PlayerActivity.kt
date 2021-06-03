@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.model.Song
 
 var currentSong = 0
@@ -28,10 +29,14 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
     private lateinit var playlistListView: RecyclerView
-    private var adapter= PlayListRecyclerAdapter(SongList)
+    private lateinit var db:PlayerSQL
+    private var songList=ArrayList<Song>()
+    private var adapter= PlayListRecyclerAdapter(songList)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+        db= PlayerSQL(this)
+        songList=db.getAll("playlist")
         playBTN = findViewById(R.id.playerPlay)
         titleView = findViewById(R.id.playerTitle)
         tvDue = findViewById(R.id.tv_due)
@@ -75,7 +80,7 @@ class PlayerActivity : AppCompatActivity() {
             setRunnable()
         }
         setPlayButton()
-        titleView.text = SongList[currentSong].TITLE
+        titleView.text = songList[currentSong].TITLE
     }
 
 
@@ -114,15 +119,15 @@ class PlayerActivity : AppCompatActivity() {
     }
 private fun getNewPosition(position: Int){
     currentSong= when {
-        position<0 -> SongList.size-1
-        position> SongList.size-1 -> 0
+        position<0 -> songList.size-1
+        position> songList.size-1 -> 0
         else -> position
     }
 }
     private fun preparePlayer() {
         mediaPlayer.pause()
         mediaPlayer.reset()
-        mediaPlayer.setDataSource(SongList[currentSong].DATA)
+        mediaPlayer.setDataSource(songList[currentSong].DATA)
         mediaPlayer.prepare()
         setupPlayer()
         initial()
@@ -140,11 +145,11 @@ private fun getNewPosition(position: Int){
     private fun setupPlayer() {
         if (mediaPlayer.isPlaying) { mediaPlayer.pause()} else {mediaPlayer.start()}
         setPlayButton()
-        titleView.text = SongList[currentSong].TITLE
+        titleView.text = songList[currentSong].TITLE
     }
 
     private fun setRunnable() {
-        val string = SongList[currentSong].TITLE!!
+        val string = songList[currentSong].TITLE!!
         titleView.text = if(string.length>40) string.substring(0,40) else string
 
         runnable = Runnable {
@@ -182,7 +187,7 @@ private fun getNewPosition(position: Int){
         private val titlePlaylist: TextView =itemView.findViewById(R.id.playlistTitle)
         fun binding(track:Song){
             titlePlaylist.text=track.TITLE
-            if (SongList[currentSong].DATA==track.DATA){
+            if (songList[currentSong].DATA==track.DATA){
                 itemView.setBackgroundColor(getColor(R.color.selected_playlist))
             }else{
                 itemView.setBackgroundColor(getColor(R.color.unselected_playlist))
@@ -198,7 +203,7 @@ private fun getNewPosition(position: Int){
 
     }
 private fun setPlayerDetail(){
-    val song=SongList[currentSong]
+    val song=songList[currentSong]
     findViewById<TextView>(R.id.playerDetail_name).text=song.TITLE
     findViewById<TextView>(R.id.playerDetail_artist).text= song.ARTIST
     findViewById<TextView>(R.id.playerDetail_album).text=song.ALBUM

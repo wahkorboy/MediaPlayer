@@ -15,6 +15,8 @@ class TheSongActivity : AppCompatActivity(){
     private lateinit var mp:MediaPlayer
     private lateinit var adapter: PlaylistRecyclerAdapter
     private var songList=ArrayList<Song>()
+    private var playPosition=-1
+    private var isPlayEnable=false
     private val view:ActivityTheSongBinding by lazy {
         ActivityTheSongBinding.inflate(layoutInflater)
     }
@@ -24,24 +26,60 @@ class TheSongActivity : AppCompatActivity(){
         setContentView(view.root)
         mp= MediaPlayer()
         db= PlayerSQL(this)
-        songList=db.allPlayList
-        if(songList.size==0 && SongList.size>0){
-            db.addPlaylist(SongList)
-            songList=db.allPlayList
+        songList=db.getAll("playlist")
+        if (songList.size==0){
+            songList=db.getAll("AllSong")
+           db.add(songList,tableName = "playlist")
         }
+
+
         adapter= PlaylistRecyclerAdapter(songList) { position ->
             setItemClick(position)
         }
         view.thesongListView.layoutManager=LinearLayoutManager(this)
        view.thesongListView.adapter=adapter
        adapter.notifyDataSetChanged()
+        var position=0
+        while (position<songList.size){
+            if (songList[position++].isPlaying!!){
+                playPosition=position-1
+            }
+        }
+        initial()
+        view.thesongPlay.setOnClickListener {
+            if (isPlayEnable){
+                if (mp.isPlaying){
+                    view.thesongPlay.setImageResource(R.drawable.ic_baseline_play)
+                    mp.pause()
+                }else{
+                    mp.start()
+                    view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+                }
+            }
+        }
     }
-
-    private fun setItemClick(position: Int) {
+private fun initial(){
+    if(playPosition>-1){
+        val song=songList[playPosition]
         mp.reset()
-        mp.setDataSource(songList[position].DATA)
+        mp.setDataSource(songList[playPosition].DATA)
+        mp.reset()
+        mp.setDataSource(song.DATA)
         mp.prepare()
+        isPlayEnable=true
+        view.thesongTitle.text=song.TITLE
+    }
+}
+    private fun setItemClick(position: Int) {
+        var time=0
+        while (time<songList.size) songList[time++].isPlaying=false
+        songList[position].isPlaying=true
+        adapter.notifyDataSetChanged()
+        playPosition=position
+        initial()
         mp.start()
+        view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+        db.update(songList,tableName = "playlist")
 
     }
 

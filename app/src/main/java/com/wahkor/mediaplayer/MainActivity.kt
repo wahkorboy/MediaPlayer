@@ -2,20 +2,22 @@ package com.wahkor.mediaplayer
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.model.Song
 import kotlin.random.Random
 
-var SongList=ArrayList<Song>()
 class MainActivity : AppCompatActivity() {
+    private lateinit var db:PlayerSQL
     private val requestAskCode = 1159
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        db= PlayerSQL(this)
         // check Permissions
         checkPermissions()
     }
@@ -66,16 +68,15 @@ class MainActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DISPLAY_NAME
         )
 
-        SongList.clear()
+        var songList=ArrayList<Song>()
         val allMusic = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection=MediaStore.Audio.Media.IS_MUSIC
         val cursor=contentResolver.query(allMusic,null,selection,null,null)
         if(cursor != null){
-            var time=0
             while (cursor.moveToNext()){
                 var item=0
-                SongList.add(
-                    Song(time++,
+                songList.add(
+                    Song(
                         false,
                         cursor.getLong(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
@@ -91,12 +92,10 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             cursor?.close()
-            mediaPlayer = MediaPlayer()
-            currentSong= Random.nextInt(0, SongList.size-1)
-            mediaPlayer.setDataSource(SongList[currentSong].DATA)
-            mediaPlayer.prepare()
-            SongList[currentSong].isPlaying=true
-            val intent=Intent(this,TheSongActivity::class.java)
+            currentSong= Random.nextInt(0, songList.size-1)
+            songList[currentSong].isPlaying=true
+            db.setAllSong(songList)
+            val intent= Intent(this,TheSongActivity::class.java)
             startActivity(intent)
         }
 

@@ -4,21 +4,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.model.Song
 
-class PlaylistRecyclerAdapter(var list: ArrayList<Song>, var adapterOnClick: (Int) -> Unit) :
+class PlaylistRecyclerAdapter(var list: ArrayList<Song>, var callback: (Int) -> Unit) :
     RecyclerView.Adapter<PlaylistRecyclerAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val titlePlaylist: TextView = itemView.findViewById(R.id.playlistTitle)
+        private val title: TextView = itemView.findViewById(R.id.playlistTitle)
         fun bind() {
             itemView.setOnClickListener {
-                adapterOnClick(adapterPosition)
+                callback(adapterPosition)
+
             }
-            titlePlaylist.text = list[adapterPosition].TITLE
+            val song=list[adapterPosition]
+            title.text =song.TITLE
+            if (song.isPlaying!!){
+                itemView.setBackgroundColor(getColor(itemView.context,R.color.selected_playlist))
+            }else{
+                itemView.setBackgroundColor(getColor(itemView.context,R.color.unselected_playlist))
+
+
+            }
         }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistRecyclerAdapter.ViewHolder {
