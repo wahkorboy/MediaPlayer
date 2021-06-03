@@ -14,10 +14,10 @@ import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivityTheSongBinding
 import com.wahkor.mediaplayer.model.Song
 
+var mp=MediaPlayer()
 class TheSongActivity : AppCompatActivity(),SettingClick{
     private lateinit var runnable: Runnable
     private var handles=Handler()
-    private lateinit var mp:MediaPlayer
     private lateinit var adapter: PlaylistRecyclerAdapter
     private var songList=ArrayList<Song>()
     private var playPosition=-1

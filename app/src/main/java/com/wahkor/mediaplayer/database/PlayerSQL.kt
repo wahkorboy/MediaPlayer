@@ -69,6 +69,19 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
         }
         return list
     }
+    fun create(tableName: String,dataSet:String,values:ContentValues?=null){
+        val db=this.writableDatabase
+        try {
+            db.execSQL("create table $tableName($dataSet)")
+            if (values != null){
+                db.insert(tableName,null,values)
+                db.close()
+            }
+        }catch (E:Exception) {
+            E.toString()
+        }
+        db.close()
+    }
     fun add(list:ArrayList<Song>, tableName: String= TABLE_NAME){
 
         val db = this.writableDatabase!!
@@ -165,6 +178,12 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
             cursor.getInt(cursor.getColumnIndex(col_TRACK)),
             cursor.getLong(cursor.getColumnIndex(col_ARTIST_ID)),
             cursor.getString(cursor.getColumnIndex(col_DISPLAY_NAME)))
+
+    }
+    fun updateSleepTime(tableName: String,dataSet: String,values: ContentValues){
+        val db=this.writableDatabase
+        db.delete(tableName,null,null)
+        create(tableName,dataSet = dataSet,values=values)
 
     }
 }

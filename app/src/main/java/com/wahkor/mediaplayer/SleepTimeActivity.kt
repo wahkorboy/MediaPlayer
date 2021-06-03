@@ -3,24 +3,36 @@ package com.wahkor.mediaplayer
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivitySleepTimeBinding
+import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
 import java.util.*
 
 class SleepTimeActivity : AppCompatActivity() {
+    private val tableName="sleepTime"
+    private val dataSet="SleepMode TEXT,TimeDelay INTEGER,TimeAfter INTEGER,TimeInDay INTEGER"
     private var time:Long=0
+    private var timeAfter:Long=0
+    private lateinit var db:PlayerSQL
+    private val repeatModeList= arrayListOf("Non","Day","Time","TimeAfter")
+    private var repeatMode=repeatModeList[0]
+    private lateinit var sleep:Sleep
     private val view:ActivitySleepTimeBinding by lazy{
         ActivitySleepTimeBinding.inflate(layoutInflater)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
+        db= PlayerSQL(this)
+        initailTimeSleepDB()
         view.manualTime.setOnClickListener{
             setBG(it as Button)
             Calendar.getInstance().apply {
@@ -60,7 +72,43 @@ class SleepTimeActivity : AppCompatActivity() {
             view.repeatTime.isChecked= ! view.repeatTimeAfter.isChecked
         }
     }
+private fun initailTimeSleepDB(){
+    val nameListTable=db.getTableName()
+    if(nameListTable.contains(tableName)){
+        val
+    }else{
+        db.create(tableName,dataSet)
 
+    }
+
+}
+    private fun updateSleepTimeDB(){
+        val values=ContentValues()
+        val times: ArrayList<Long>
+        when(true){
+            view.repeatEveryday.isChecked ->{
+                sleep= Sleep(repeatModeList[1], time,0,0 )
+            }
+            view.repeatTime.isChecked ->{
+                sleep=Sleep(repeatModeList[2],0,time,0)
+
+            }
+            view.repeatTimeAfter.isChecked ->{
+                repeatMode=repeatModeList[3]
+                times= arrayListOf(0,time,timeAfter)
+
+            }
+            else ->{
+                repeatMode=repeatModeList[0]
+                times= arrayListOf(0,0,0)
+            }
+        }
+        values.put("SleepMode",repeatMode)
+        values.put("TimeInDay",times[0])
+        values.put("TimeDelay",times[1])
+        values.put("TimeAfter",times[2])
+        db.updateSleepTime(tableName,dataSet,values)
+    }
     private fun setText(hourOfDay: Int, minute: Int): String {
         var text=""
         text+=if(hourOfDay<10) "0$hourOfDay" else "$hourOfDay"
@@ -108,7 +156,7 @@ class SleepTimeActivity : AppCompatActivity() {
         val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this,SleepTimeReceiver::class.java)
         intent.putExtra("notificationID","SleepTime")
-        intent.putExtra("notificationContent","SleepTime")
+        intent.putExtra("notificationContent","$repeatMode")
         val pendingIntent= PendingIntent.getBroadcast(this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT)
         alarmMGR.setExact(AlarmManager.RTC_WAKEUP,timeInMills,pendingIntent)
     }
