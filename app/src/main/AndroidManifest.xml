@@ -42,7 +42,6 @@
                 <data android:mimeType="application/itunes" />
             </intent-filter>
         </activity>
-        <activity android:name=".PlayerActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -8,12 +8,13 @@ import android.os.Handler
 import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.wahkor.mediaplayer.`interface`.SettingClick
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
 import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivityTheSongBinding
 import com.wahkor.mediaplayer.model.Song
 
-class TheSongActivity : AppCompatActivity(){
+class TheSongActivity : AppCompatActivity(),SettingClick{
     private lateinit var runnable: Runnable
     private var handles=Handler()
     private lateinit var mp:MediaPlayer
@@ -71,6 +72,7 @@ class TheSongActivity : AppCompatActivity(){
             else ++playPosition
             setItemClick(item)
         }
+        view.setting.setOnClickListener {setOnSettingClick(this,PopupMenu(this,view.setting)) }
         mp.setOnCompletionListener {
             if (isPlayEnable){
                 val item=if(playPosition==songList.size-1) 0

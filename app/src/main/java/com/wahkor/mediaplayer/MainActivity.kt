@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             cursor?.close()
-            currentSong= Random.nextInt(0, songList.size-1)
+            val currentSong= Random.nextInt(0, songList.size-1)
             songList[currentSong].isPlaying=true
             db.setAllSong(songList)
             val intent= Intent(this,TheSongActivity::class.java)
