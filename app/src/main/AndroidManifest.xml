@@ -11,7 +11,11 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
-        <activity android:name=".SleepTimeActivity"></activity>
+        <activity
+            android:name=".TestActivity"
+            android:label="@string/title_activity_test"
+            android:theme="@style/Theme.MediaPlayer.NoActionBar"></activity>
+        <activity android:name=".SleepTimeActivity" />
         <activity android:name=".TheSongActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -52,7 +56,9 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".receiver.SleepTimeReceiver" android:enabled="true" />
+        <receiver
+            android:name=".receiver.SleepTimeReceiver"
+            android:enabled="true" />
     </application>
 
 </manifest>
