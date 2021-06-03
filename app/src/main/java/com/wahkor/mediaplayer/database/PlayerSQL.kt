@@ -5,10 +5,13 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
 
 
 class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null, databaseVersion) {
+
+
     companion object {
         const val databaseName = "player001.db"
         const val databaseVersion = 1
@@ -180,10 +183,27 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
             cursor.getString(cursor.getColumnIndex(col_DISPLAY_NAME)))
 
     }
-    fun updateSleepTime(tableName: String,dataSet: String,values: ContentValues){
+    fun updateSleepTime(tableName: String,values: ContentValues){
         val db=this.writableDatabase
         db.delete(tableName,null,null)
-        create(tableName,dataSet = dataSet,values=values)
+        db.insert(tableName,null,values)
+        db.close()
 
+    }
+    fun getSleepTimeTable(tableName:String): Sleep {
+        var sleep= Sleep("Non",0,0,0)
+        val db=this.writableDatabase
+        val cursor=db.rawQuery("Select * from $tableName",null)
+        if(cursor != null){
+            while (cursor.moveToNext()){
+                sleep= Sleep(
+                    cursor.getString(cursor.getColumnIndex("SleepMode")),
+                    cursor.getLong(cursor.getColumnIndex("TimeInDay")),
+                    cursor.getLong(cursor.getColumnIndex("TimeDelay")),
+                    cursor.getLong(cursor.getColumnIndex("TimeAfter"))
+                )
+            }
+        }
+        return sleep
     }
 }

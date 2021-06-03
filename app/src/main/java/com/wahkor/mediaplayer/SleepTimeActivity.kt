@@ -19,11 +19,8 @@ import java.util.*
 class SleepTimeActivity : AppCompatActivity() {
     private val tableName="sleepTime"
     private val dataSet="SleepMode TEXT,TimeDelay INTEGER,TimeAfter INTEGER,TimeInDay INTEGER"
-    private var time:Long=0
-    private var timeAfter:Long=0
     private lateinit var db:PlayerSQL
-    private val repeatModeList= arrayListOf("Non","Day","Time","TimeAfter")
-    private var repeatMode=repeatModeList[0]
+    private val repeatMode= arrayListOf("Non","Day","Time","TimeAfter")
     private lateinit var sleep:Sleep
     private val view:ActivitySleepTimeBinding by lazy{
         ActivitySleepTimeBinding.inflate(layoutInflater)
@@ -32,7 +29,7 @@ class SleepTimeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
         db= PlayerSQL(this)
-        initailTimeSleepDB()
+        initialTimeSleepDB()
         view.manualTime.setOnClickListener{
             setBG(it as Button)
             Calendar.getInstance().apply {
@@ -42,8 +39,14 @@ class SleepTimeActivity : AppCompatActivity() {
                             {_,hourOfDay,minute->
                                 this.set(Calendar.HOUR_OF_DAY,hourOfDay)
                                 this.set(Calendar.MINUTE,minute)
-                                setManualTime(hourOfDay,minute)
+                                sleep.TimeInDay=(hourOfDay*60*60*100+minute*60*100).toLong()
+                                sleep.TimeAfter=0
+                                sleep.TimeDelay=0
                                 it.text = setText(hourOfDay,minute)
+                                if (sleep.SleepMode!=repeatMode[1]){
+                                    sleep.SleepMode=repeatMode[0]
+                                }
+                                setRepeatMode("day")
 
                             },
                             this.get(Calendar.HOUR_OF_DAY),
@@ -55,59 +58,148 @@ class SleepTimeActivity : AppCompatActivity() {
         }
         view.delay15.setOnClickListener {
             setBG(it as Button)
-            setSelectedTime(15)
+            if (sleep.SleepMode==repeatMode[1]){
+                sleep.SleepMode=repeatMode[0]
+            }
+            sleep.TimeInDay=0
+            sleep.TimeAfter=0
+            sleep.TimeDelay=15*60*1000
+            setRepeatMode("time")
         }
         view.delay30.setOnClickListener {
             setBG(it as Button)
-            setSelectedTime(30)
+            if (sleep.SleepMode==repeatMode[1]){
+                sleep.SleepMode=repeatMode[0]
+            }
+            sleep.TimeDelay=30*60*1000
+            sleep.TimeInDay=0
+            sleep.TimeAfter=0
+            setRepeatMode("time")
         }
         view.delay60.setOnClickListener {
             setBG(it as Button)
-            setSelectedTime(60)
+            if (sleep.SleepMode==repeatMode[1]){
+                sleep.SleepMode=repeatMode[0]
+            }
+            sleep.TimeDelay=60*60*1000
+            sleep.TimeInDay=0
+            sleep.TimeAfter=0
+            setRepeatMode("time")
         }
         view.repeatTime.setOnClickListener {
-            view.repeatTimeAfter.isChecked= ! view.repeatTime.isChecked
+            if (view.repeatTime.isChecked){
+                view.repeatTimeAfter.isChecked=false
+                sleep.SleepMode=repeatMode[2]
+            }else{
+                if(sleep.SleepMode==repeatMode[2]){
+                    sleep.SleepMode=repeatMode[0]
+                }
+            }
         }
         view.repeatTimeAfter.setOnClickListener {
-            view.repeatTime.isChecked= ! view.repeatTimeAfter.isChecked
+            if (view.repeatTimeAfter.isChecked){
+                view.repeatTime.isChecked= false
+                sleep.SleepMode=repeatMode[3]
+
+            }else{
+                if(sleep.SleepMode==repeatMode[3]){
+                    sleep.SleepMode=repeatMode[0]
+                }
+            }
+        }
+        view.repeatEveryday.setOnClickListener {
+            if(view.repeatEveryday.isChecked){
+                sleep.SleepMode=repeatMode[1]
+            }else{
+                if (sleep.SleepMode==repeatMode[1]){
+                    sleep.SleepMode=repeatMode[0]
+                }
+            }
+        }
+        view.submit.setOnClickListener {
+            updateSleepTimeDB()
+            toast("mode ${sleep.SleepMode}," +
+                    "${sleep.TimeInDay} ,${sleep.TimeDelay} ,${sleep.TimeAfter} ")
+        }
+        initialLayout()
+    }
+
+    private fun initialLayout() {
+        when(sleep.SleepMode){
+            repeatMode[1]->{
+                view.repeatEveryday.isChecked=true
+                var minutes=(sleep.TimeInDay/1000).toInt()
+                val hours=minutes/60
+                minutes -= hours * 60
+                view.manualTime.text=setText(hours,minutes)
+                view.manualTime.setBackgroundColor(getColor(R.color.selected_btn))
+                setRepeatMode("day")
+
+            }
+            repeatMode[2] ->{
+                view.repeatTime.isChecked=true
+                setRepeatMode("time")
+                setBgBtn(sleep.TimeDelay)
+            }
+            repeatMode[3] ->{
+                view.repeatTimeAfter.isChecked=true
+                setRepeatMode("time")
+                setBgBtn(sleep.TimeDelay)
+            }
         }
     }
-private fun initailTimeSleepDB(){
-    val nameListTable=db.getTableName()
-    if(nameListTable.contains(tableName)){
-        val
-    }else{
-        db.create(tableName,dataSet)
+    private fun setBgBtn(timeInMills: Long){
+        val minute=timeInMills/(1000*60)
+        when(minute.toInt()){
+            15->{
+                view.delay15.setBackgroundColor(getColor(R.color.selected_btn))
+            }
+            30->{
+                view.delay30.setBackgroundColor(getColor(R.color.selected_btn))
 
+            }
+            60->{
+                view.delay60.setBackgroundColor(getColor(R.color.selected_btn))
+
+            }
+        }
     }
+    private fun setRepeatMode(mode:String){
+        view.everydayLayout.visibility= View.GONE
+        view.everytimeLayout.visibility=View.GONE
+        view.everyTimeAfterLayout.visibility=View.GONE
+        when(mode){
+            "time" -> {
+                view.repeatEveryday.isChecked=false
+                view.everytimeLayout.visibility=View.VISIBLE
+                view.everyTimeAfterLayout.visibility=View.VISIBLE
+            }
+            "day" -> {
+                view.everydayLayout.visibility=View.VISIBLE
+                view.repeatTime.isChecked=false
+                view.repeatTimeAfter.isChecked=false
+            }
+
+        }
+    }
+
+    private fun initialTimeSleepDB(){
+    val nameListTable=db.getTableName()
+        sleep = if(nameListTable.contains(tableName)){
+            db.getSleepTimeTable(tableName)
+        }else{
+            db.create(tableName,dataSet)
+            db.getSleepTimeTable(tableName)
+        }
 
 }
     private fun updateSleepTimeDB(){
         val values=ContentValues()
-        val times: ArrayList<Long>
-        when(true){
-            view.repeatEveryday.isChecked ->{
-                sleep= Sleep(repeatModeList[1], time,0,0 )
-            }
-            view.repeatTime.isChecked ->{
-                sleep=Sleep(repeatModeList[2],0,time,0)
-
-            }
-            view.repeatTimeAfter.isChecked ->{
-                repeatMode=repeatModeList[3]
-                times= arrayListOf(0,time,timeAfter)
-
-            }
-            else ->{
-                repeatMode=repeatModeList[0]
-                times= arrayListOf(0,0,0)
-            }
-        }
-        values.put("SleepMode",repeatMode)
-        values.put("TimeInDay",times[0])
-        values.put("TimeDelay",times[1])
-        values.put("TimeAfter",times[2])
-        db.updateSleepTime(tableName,dataSet,values)
+        values.put("SleepMode",sleep.SleepMode)
+        values.put("TimeInDay",sleep.TimeInDay)
+        values.put("TimeDelay",sleep.TimeDelay)
+        values.put("TimeAfter",sleep.TimeAfter)
+        db.updateSleepTime(tableName,values)
     }
     private fun setText(hourOfDay: Int, minute: Int): String {
         var text=""
@@ -122,35 +214,6 @@ private fun initailTimeSleepDB(){
         view.delay60.setBackgroundColor(getColor(R.color.unselected_btn))
         view.manualTime.setBackgroundColor(getColor(R.color.unselected_btn))
         button.setBackgroundColor(getColor(R.color.selected_btn))
-    }
-    private fun setSelectedTime(minutes:Int) {
-        val setTime=System.currentTimeMillis()+minutes*60*1000
-        time=setTime
-        setRepeatMode("time")
-
-    }
-    private fun setManualTime(hours:Int,minutes:Int) {
-        val setTime=System.currentTimeMillis()
-        time=setTime
-        setRepeatMode("day")
-
-    }
-    private fun setRepeatMode(mode:String){
-        view.everydayLayout.visibility= View.GONE
-        view.everytimeLayout.visibility=View.GONE
-        view.everyTimeAfterLayout.visibility=View.GONE
-        when(mode){
-            "time" -> {
-                view.repeatEveryday.isChecked=false
-                view.everytimeLayout.visibility=View.VISIBLE
-                view.everyTimeAfterLayout.visibility=View.VISIBLE
-            }
-                "day" -> {
-                    view.everytimeLayout.visibility=View.VISIBLE
-                    view.repeatTime.isChecked=false
-                    view.repeatTimeAfter.isChecked=false
-                }
-        }
     }
     private fun setAlarm(timeInMills:Long){
         val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager

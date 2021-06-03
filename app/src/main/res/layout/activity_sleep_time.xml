@@ -45,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/everydayLayout"
+        android:visibility="gone"
         android:orientation="horizontal"
         >
         <Switch
@@ -61,6 +62,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/everytimeLayout"
+        android:visibility="gone"
         android:orientation="horizontal"
         >
         <Switch
@@ -78,6 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/everyTimeAfterLayout"
+        android:visibility="gone"
         android:orientation="horizontal"
         >
         <Switch
@@ -95,6 +98,19 @@
             android:backgroundTint="@color/unselected_btn"
             android:text="set"
             android:id="@+id/setAfter" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/submit"
+            android:text="OK" />
     </LinearLayout>
 
 
