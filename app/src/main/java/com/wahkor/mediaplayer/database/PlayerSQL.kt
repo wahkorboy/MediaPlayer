@@ -191,19 +191,24 @@ class PlayerSQL(context: Context) : SQLiteOpenHelper(context, databaseName, null
 
     }
     fun getSleepTimeTable(tableName:String): Sleep {
-        var sleep= Sleep("Non",0,0,0)
+        val sleep=Sleep()
         val db=this.writableDatabase
         val cursor=db.rawQuery("Select * from $tableName",null)
         if(cursor != null){
             while (cursor.moveToNext()){
-                sleep= Sleep(
-                    cursor.getString(cursor.getColumnIndex("SleepMode")),
-                    cursor.getLong(cursor.getColumnIndex("TimeInDay")),
-                    cursor.getLong(cursor.getColumnIndex("TimeDelay")),
-                    cursor.getLong(cursor.getColumnIndex("TimeAfter"))
-                )
+
             }
         }
         return sleep
+    }
+
+    fun deleteTable(tableName: String) {
+        val db=this.writableDatabase
+        try {
+            db.execSQL("DROP TABLE IF EXISTS $tableName")
+        }catch (e:Exception){
+
+        }
+
     }
 }

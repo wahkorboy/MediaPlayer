@@ -95,8 +95,8 @@ class MainActivity : AppCompatActivity() {
             val currentSong= Random.nextInt(0, songList.size-1)
             songList[currentSong].isPlaying=true
             db.setAllSong(songList)
-           // val intent= Intent(this,TheSongActivity::class.java)
-            val intent= Intent(this,TestActivity::class.java)
+            val intent= Intent(this,TheSongActivity::class.java)
+            //val intent= Intent(this,TestMainActivity::class.java)
             startActivity(intent)
         }
 
