@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_margin="15dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SleepTimeActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:textSize="35dp"
+        android:text="Sleep Time"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="50dp"
+        android:id="@+id/delayTimelayoute"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/delayNaver"
+            android:text="Never"
+            style="@style/sleepBtn" />
+        <Button
+            android:id="@+id/delay15"
+            android:text="15 Min"
+            style="@style/sleepBtn" />
+        <Button
+            android:id="@+id/delay30"
+            android:text="30 Min"
+            style="@style/sleepBtn" />
+        <Button
+            android:id="@+id/delay60"
+            android:text="60 Min"
+            style="@style/sleepBtn" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/repeatSwitch"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="3dp"
+            android:paddingTop="3dp"
+            android:layout_marginRight="20dp"
+            android:textSize="19dp"
+            android:text="Repeat when ->" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            android:background="#0000dd"
+            android:layout_margin="10dp"
+            android:layout_marginRight="16dp"
+            tools:text="22:30"
+            android:id="@+id/sleepTimeText"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:background="#0000dd"
+            android:layout_margin="10dp"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            tools:text="06:00"
+            android:id="@+id/wakeupTimeText"/>
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/submit"
+            android:layout_marginLeft="50dp"
+            android:text="OK" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel"
+            android:text="Cancel" />
+    </LinearLayout>
+
+
+</LinearLayout>
