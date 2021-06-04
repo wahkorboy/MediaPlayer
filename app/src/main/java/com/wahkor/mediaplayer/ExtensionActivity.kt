@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import java.util.*
 
-class ExtentionActivity : AppCompatActivity() {
+class ExtensionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_extention)
@@ -17,7 +17,7 @@ class ExtentionActivity : AppCompatActivity() {
 
 fun Activity.picTime(context: Context,title:String="", callback:(hours:Int, minutes:Int)->Unit){
     Calendar.getInstance().apply {
-        val timeselect=TimePickerDialog(context,0,
+        val timeSelect=TimePickerDialog(context,0,
             {_,hourOfDay,minute ->
                 this.set(Calendar.HOUR_OF_DAY,hourOfDay)
                 this.set(Calendar.MINUTE,minute)
@@ -26,8 +26,8 @@ fun Activity.picTime(context: Context,title:String="", callback:(hours:Int, minu
             this.get(Calendar.HOUR_OF_DAY),
             this.get(Calendar.MINUTE),
             false)
-        timeselect.setTitle(title)
-        timeselect.show()
+        timeSelect.setTitle(title)
+        timeSelect.show()
 
     }
 }
