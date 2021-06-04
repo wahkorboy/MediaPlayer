@@ -4,22 +4,21 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import androidx.annotation.RequiresApi
-import com.wahkor.mediaplayer.database.PlayerSQL
+import com.wahkor.mediaplayer.database.SleepDb
 import com.wahkor.mediaplayer.databinding.ActivitySleepTimeBinding
 import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
+import kotlin.random.Random
 
 class SleepTimeActivity : AppCompatActivity() {
-    private val tableName = "sleepTime"
-    private val dataSet = "isRepeat integer,delayTime Integer,sleepTime integer,wakeupTime integer"
-
-    private lateinit var db: PlayerSQL
-    private var sleep = Sleep()
+    private lateinit var db: SleepDb
+    private lateinit var sleep :Sleep
     private val view: ActivitySleepTimeBinding by lazy {
         ActivitySleepTimeBinding.inflate(layoutInflater)
     }
@@ -28,7 +27,7 @@ class SleepTimeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
-        db = PlayerSQL(this)
+        db = SleepDb(this)
         initialTimeSleepDB()
         view.sleepTimeText.setOnClickListener {
             picTime(this, "set BedTime ") { hours, minutes ->
@@ -60,8 +59,6 @@ class SleepTimeActivity : AppCompatActivity() {
             setBG(it as Button)
             sleep.delayTime = 60
         }
-        view.submit.setOnClickListener {
-        }
         view.repeatSwitch.setOnClickListener {
             sleep.isRepeat=view.repeatSwitch.isChecked
             if (view.repeatSwitch.isChecked){
@@ -71,25 +68,22 @@ class SleepTimeActivity : AppCompatActivity() {
             }
         }
         view.submit.setOnClickListener {
-            if(sleep.isRepeat){
-                // write to db
-            }
+                db.setSleep(sleep)
+
             if (sleep.delayTime>0){
                 setAlarm()
             }
+            onBackPressed()
+        }
+        view.cancel.setOnClickListener {
             onBackPressed()
         }
     }
 
     private fun initialTimeSleepDB() {
 
-        val nameListTable = db.getTableName()
-        sleep = if (nameListTable.contains(tableName)) {
-            db.getSleepTimeTable(tableName)
-        } else {
-            db.create(tableName, dataSet)
-            db.getSleepTimeTable(tableName)
-        }
+        sleep=db.getSleep
+        sleep.id= Random.nextInt(1,999999)
         setInitial()
     }
 
@@ -100,8 +94,8 @@ class SleepTimeActivity : AppCompatActivity() {
         when (sleep.delayTime) {
             0 -> setBG(view.delayNaver)
             15 -> setBG(view.delay15)
-            30 -> setBG(view.delay15)
-            60 -> setBG(view.delay15)
+            30 -> setBG(view.delay30)
+            60 -> setBG(view.delay60)
         }
     }
 
@@ -117,10 +111,12 @@ class SleepTimeActivity : AppCompatActivity() {
     private fun setAlarm() {
             val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(this, SleepTimeReceiver::class.java)
-            intent.putExtra("notificationID", "SleepTime")
+        intent.putExtra("notificationID", "${sleep.id}")
+        intent.putExtra("notificationNAME", "SleepTime")
             val pendingIntent =
                 PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.delayMills, pendingIntent)
+        toast("SleepTime in ${sleep.delayTime} minutes")
 
     }
 

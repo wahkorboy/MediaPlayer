@@ -10,31 +10,32 @@ import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wahkor.mediaplayer.`interface`.SettingClick
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
-import com.wahkor.mediaplayer.database.PlayerSQL
+import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.databinding.ActivityTheSongBinding
 import com.wahkor.mediaplayer.model.Song
 
 var mp=MediaPlayer()
+private const val tableName="playlist_current"
 class TheSongActivity : AppCompatActivity(),SettingClick{
     private lateinit var runnable: Runnable
     private var handles=Handler()
     private lateinit var adapter: PlaylistRecyclerAdapter
-    private var songList=ArrayList<Song>()
+    private lateinit var songList:ArrayList<Song>
     private var playPosition=-1
     private var isPlayEnable=false
     private val view:ActivityTheSongBinding by lazy {
         ActivityTheSongBinding.inflate(layoutInflater)
     }
-    private lateinit var db: PlayerSQL
+    private lateinit var db: PlayListDB
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
         mp= MediaPlayer()
-        db= PlayerSQL(this)
-        songList=db.getAll("playlist")
+        db= PlayListDB(this)
+        songList=db.getData(tableName )
         if (songList.size==0){
-            songList=db.getAll("AllSong")
-           db.add(songList,tableName = "playlist")
+            songList=db.getData("allSong")
+           db.setData(tableName,songList)
         }
 
 
@@ -46,7 +47,7 @@ class TheSongActivity : AppCompatActivity(),SettingClick{
        adapter.notifyDataSetChanged()
         var position=0
         while (position<songList.size){
-            if (songList[position++].isPlaying!!){
+            if (songList[position++].is_playing){
                 playPosition=position-1
             }
         }
@@ -102,9 +103,9 @@ private fun initial(){
     if(playPosition>-1){
         val song=songList[playPosition]
         mp.reset()
-        mp.setDataSource(songList[playPosition].DATA)
+        mp.setDataSource(songList[playPosition].data)
         mp.reset()
-        mp.setDataSource(song.DATA)
+        mp.setDataSource(song.data)
         mp.prepare()
         isPlayEnable=true
         adapter.notifyDataSetChanged()
@@ -116,8 +117,8 @@ private fun initial(){
     private fun setRunnable() {
         view.thesongSeekbar.max=mp.duration
         runnable= Runnable {
-            view.tvDue.text=getMinite(mp.duration-mp.currentPosition)
-            view.tvPass.text=getMinite(mp.currentPosition)
+            view.tvDue.text=getMinute(mp.duration-mp.currentPosition)
+            view.tvPass.text=getMinute(mp.currentPosition)
             view.thesongSeekbar.progress=mp.currentPosition
             handles.postDelayed(runnable,1000)
         }
@@ -127,23 +128,23 @@ private fun initial(){
 
     private fun setItemClick(position: Int) {
         var time=0
-        while (time<songList.size) songList[time++].isPlaying=false
-        songList[position].isPlaying=true
+        while (time<songList.size) songList[time++].is_playing=false
+        songList[position].is_playing=true
         playPosition=position
         initial()
         mp.start()
         view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
-        db.update(songList,tableName = "playlist")
+        db.setData(tableName,songList)
 
     }
 
     private fun setDetail(){
         val song=songList[playPosition]
-        view.thesongTitle.text=song.TITLE
-        view.thesongDetailName.text=song.TITLE
-        view.thesongDetailArtist.text= song.ARTIST
-        view.thesongDetailAlbum.text=song.ALBUM
-        view.thesongDetailDuration.text= getMinite(mp.duration)
+        view.thesongTitle.text=song.title
+        view.thesongDetailName.text=song.title
+        view.thesongDetailArtist.text= song.artist
+        view.thesongDetailAlbum.text=song.album
+        view.thesongDetailDuration.text= getMinute(mp.duration)
     }
     private fun playListDropDown() {
        val detail=view.thesongDetailLayout
@@ -163,7 +164,7 @@ fun Activity.toast(text:String){
     Toast.makeText(this,text,Toast.LENGTH_LONG).show()
 }
 
-fun Activity.getMinite(time: Int): CharSequence? {
+fun Activity.getMinute(time: Int): CharSequence {
     var secs = time / 1000
     var minutes = secs / 60
     val hours = minutes / 60

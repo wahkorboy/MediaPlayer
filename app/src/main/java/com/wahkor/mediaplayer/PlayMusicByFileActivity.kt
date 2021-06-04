@@ -16,7 +16,6 @@ import android.provider.MediaStore
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.wahkor.mediaplayer.database.PlayerSQL
 import com.wahkor.mediaplayer.databinding.ActivityPlayMusicByFileBinding
 import com.wahkor.mediaplayer.model.Song
 

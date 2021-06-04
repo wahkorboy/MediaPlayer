@@ -13,10 +13,6 @@
         android:theme="@style/Theme.MediaPlayer">
         <activity android:name=".ExtentionActivity"></activity>
         <activity android:name=".TestMainActivity" />
-        <activity
-            android:name=".TestActivity"
-            android:label="@string/title_activity_test"
-            android:theme="@style/Theme.MediaPlayer.NoActionBar" />
         <activity android:name=".SleepTimeActivity" />
         <activity android:name=".TheSongActivity">
             <intent-filter>

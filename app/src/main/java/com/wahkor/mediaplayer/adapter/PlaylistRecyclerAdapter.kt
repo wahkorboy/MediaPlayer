@@ -21,8 +21,8 @@ class PlaylistRecyclerAdapter(var list: ArrayList<Song>, var callback: (Int) -> 
 
             }
             val song=list[adapterPosition]
-            title.text =song.TITLE
-            if (song.isPlaying!!){
+            title.text =song.title
+            if (song.is_playing!!){
                 itemView.setBackgroundColor(getColor(itemView.context,R.color.selected_playlist))
             }else{
                 itemView.setBackgroundColor(getColor(itemView.context,R.color.unselected_playlist))

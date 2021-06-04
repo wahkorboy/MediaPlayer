@@ -1,6 +1,7 @@
 package com.wahkor.mediaplayer.model
 
 data class Sleep (
+    var id:Int,
     var isRepeat:Boolean=false,
     var delayTime:Int=0,
     var sleepTime:Int=0,
@@ -22,6 +23,6 @@ data class Sleep (
         string+= if(minute<10)"0$minute" else "$minute"
         return string
     }
-    val delayMills:Long get() = (delayTime*60*1000).toLong()
+    val delayMills:Long get() =System.currentTimeMillis()+(delayTime*60*1000).toLong()
 }
 

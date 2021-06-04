@@ -7,17 +7,18 @@ import android.provider.MediaStore
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import com.wahkor.mediaplayer.database.PlayerSQL
+import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var db:PlayerSQL
+    private lateinit var db:PlayListDB
     private val requestAskCode = 1159
+    private val tableName="allSong"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        db= PlayerSQL(this)
+        db= PlayListDB(this)
         // check Permissions
         checkPermissions()
     }
@@ -56,16 +57,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadMusic() {
         val columns = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.TRACK,
-            MediaStore.Audio.Media.ARTIST_ID,
-            MediaStore.Audio.Media.DISPLAY_NAME
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.TITLE,
         )
 
         var songList=ArrayList<Song>()
@@ -77,24 +73,19 @@ class MainActivity : AppCompatActivity() {
                 var item=0
                 songList.add(
                     Song(
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getString(cursor.getColumnIndex(columns[item++])),
+                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
                         false,
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getInt(cursor.getColumnIndex(columns[item++])),
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item]))
+                        cursor.getString(cursor.getColumnIndex(columns[item])),
                     )
                 )
             }
             cursor?.close()
             val currentSong= Random.nextInt(0, songList.size-1)
-            songList[currentSong].isPlaying=true
-            db.setAllSong(songList)
+            songList[currentSong].is_playing=true
+            db.setData(tableName,songList)
             val intent= Intent(this,TheSongActivity::class.java)
             //val intent= Intent(this,TestMainActivity::class.java)
             startActivity(intent)
