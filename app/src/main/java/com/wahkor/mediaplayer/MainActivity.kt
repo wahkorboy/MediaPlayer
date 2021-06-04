@@ -2,20 +2,23 @@ package com.wahkor.mediaplayer
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
 import kotlin.random.Random
 
-var SongList=ArrayList<Song>()
 class MainActivity : AppCompatActivity() {
+    private lateinit var db:PlayListDB
     private val requestAskCode = 1159
+    private val tableName="allSong"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        db= PlayListDB(this)
         // check Permissions
         checkPermissions()
     }
@@ -54,48 +57,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadMusic() {
         val columns = arrayOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.ALBUM_ID,
-            MediaStore.Audio.Media.TRACK,
-            MediaStore.Audio.Media.ARTIST_ID,
-            MediaStore.Audio.Media.DISPLAY_NAME
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.DATA,
+            MediaStore.Audio.Media.DURATION,
+            MediaStore.Audio.Media.TITLE,
         )
 
-        SongList.clear()
+        var songList=ArrayList<Song>()
         val allMusic = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         val selection=MediaStore.Audio.Media.IS_MUSIC
         val cursor=contentResolver.query(allMusic,null,selection,null,null)
         if(cursor != null){
             while (cursor.moveToNext()){
                 var item=0
-                SongList.add(
+                songList.add(
                     Song(
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item++])),
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
                         cursor.getString(cursor.getColumnIndex(columns[item++])),
                         cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getInt(cursor.getColumnIndex(columns[item++])),
-                        cursor.getLong(cursor.getColumnIndex(columns[item++])),
-                        cursor.getString(cursor.getColumnIndex(columns[item]))
+                        false,
+                        cursor.getString(cursor.getColumnIndex(columns[item])),
                     )
                 )
             }
+            cursor?.close()
+            val currentSong= Random.nextInt(0, songList.size-1)
+            songList[currentSong].is_playing=true
+            db.setData(tableName,songList)
+            val intent= Intent(this,TheSongActivity::class.java)
+            //val intent= Intent(this,TestMainActivity::class.java)
+            startActivity(intent)
         }
-        cursor?.close()
-        mediaPlayer = MediaPlayer()
-        currentSong= Random.nextInt(0, SongList.size-1)
-        mediaPlayer.setDataSource(SongList[currentSong].DATA)
-        mediaPlayer.prepare()
-        val intent=Intent(this,PlayerActivity::class.java)
-        startActivity(intent)
 
     }
 
