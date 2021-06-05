@@ -28,13 +28,13 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
     private lateinit var songList: ArrayList<Song>
     private var playPosition = 0
     private var isPlayEnable = false
-    private val view: ActivityPlayerBinding by lazy {
+    private val binding: ActivityPlayerBinding by lazy {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
     private lateinit var db: PlayListDB
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(view.root)
+        setContentView(binding.root)
         mp = MediaPlayer()
         db = PlayListDB(this)
         initial()
@@ -61,39 +61,39 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             }
 
         }
-        view.ListView.layoutManager = LinearLayoutManager(this)
-        view.ListView.adapter = adapter
+        binding.ListView.layoutManager = LinearLayoutManager(this)
+        binding.ListView.adapter = adapter
         val callback = CustomItemTouchHelperCallback(adapter)
         val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(view.ListView)
+        itemTouchHelper.attachToRecyclerView(binding.ListView)
         adapter.notifyDataSetChanged()
-        view.Play.setOnClickListener {
+        binding.Play.setOnClickListener {
             if (isPlayEnable) {
                 if (mp.isPlaying) {
-                    view.Play.setImageResource(R.drawable.ic_baseline_play)
+                    binding.Play.setImageResource(R.drawable.ic_baseline_play)
                     mp.pause()
                 } else {
                     mp.start()
-                    view.Play.setImageResource(R.drawable.ic_baseline_pause)
+                    binding.Play.setImageResource(R.drawable.ic_baseline_pause)
                 }
             }
         }
-        view.Prev.setOnClickListener {
+        binding.Prev.setOnClickListener {
             songList[playPosition].is_playing=false
             playPosition=if (playPosition == 0) songList.size - 1
             else --playPosition
             songList[playPosition].is_playing=true
             setItemClick()
         }
-        view.Next.setOnClickListener {
+        binding.Next.setOnClickListener {
             songList[playPosition].is_playing=false
             playPosition=if (playPosition == songList.size-1) 0
             else ++playPosition
             songList[playPosition].is_playing=true
             setItemClick()
         }
-        view.setting.setOnClickListener {
-            setOnSettingClick(this, PopupMenu(this, view.setting)) { intent ->
+        binding.setting.setOnClickListener {
+            setOnSettingClick(this, PopupMenu(this, binding.setting)) { intent ->
                 startActivity(intent)
             }
         }
@@ -106,8 +106,8 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
                 setItemClick()
             }
         }
-        view.ShowDetail.setOnClickListener { playListDropDown() }
-        view.Seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.ShowDetail.setOnClickListener { playListDropDown() }
+        binding.Seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (isPlayEnable && mp.isPlaying && fromUser) {
                     mp.seekTo(progress)
@@ -121,6 +121,12 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             }
 
         })
+        binding.addSongToList.setOnClickListener {
+            val intent=Intent()
+            intent.type = "audio/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(intent,12345)
+        }
 
         adapter.notifyDataSetChanged()
     }
@@ -150,11 +156,11 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
     }
 
     private fun setRunnable() {
-        view.Seekbar.max = mp.duration
+        binding.Seekbar.max = mp.duration
         runnable = Runnable {
-            view.tvDue.text = getMinute(mp.duration - mp.currentPosition)
-            view.tvPass.text = getMinute(mp.currentPosition)
-            view.Seekbar.progress = mp.currentPosition
+            binding.tvDue.text = getMinute(mp.duration - mp.currentPosition)
+            binding.tvPass.text = getMinute(mp.currentPosition)
+            binding.Seekbar.progress = mp.currentPosition
             handles.postDelayed(runnable, 1000)
         }
         handles.postDelayed(runnable, 1000)
@@ -170,7 +176,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         isPlayEnable = true
         if(currentState){
             mp.start()
-            view.Play.setImageResource(R.drawable.ic_baseline_pause)
+            binding.Play.setImageResource(R.drawable.ic_baseline_pause)
         }
         setRunnable()
         setDetail()
@@ -181,12 +187,12 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
 
     private fun setDetail() {
         val song = songList[playPosition]
-        view.Title.text = song.title
+        binding.Title.text = song.title
     }
 
     private fun playListDropDown() {
-        val playlistManagerLayout = view.PlaylistManagerLayout
-        val icon = view.ShowDetail
+        val playlistManagerLayout = binding.PlaylistManagerLayout
+        val icon = binding.ShowDetail
         if (playlistManagerLayout.visibility == View.VISIBLE) {
             playlistManagerLayout.visibility = View.GONE
             icon.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
@@ -195,6 +201,13 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             icon.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
         }
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode==12345 && resultCode== RESULT_OK){
+            toast("${data?.data}")
+        }
     }
 
 }

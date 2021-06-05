@@ -106,6 +106,7 @@
             <Button
                 android:layout_width="wrap_content"
                 android:text="Add Song"
+                android:id="@+id/addSongToList"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
