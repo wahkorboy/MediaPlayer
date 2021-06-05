@@ -1,6 +1,7 @@
 package com.wahkor.mediaplayer
 
 import android.app.Activity
+import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,7 +10,6 @@ import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wahkor.mediaplayer.`interface`.CustomItemTouchHelperListener
 import com.wahkor.mediaplayer.`interface`.SettingClick
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
@@ -23,6 +23,7 @@ private const val tableName = "playlist_current"
 class PlayerActivity : AppCompatActivity(), SettingClick {
     private lateinit var runnable: Runnable
     private var handles = Handler()
+    private lateinit var oldSong:Song
     private lateinit var adapter: PlaylistRecyclerAdapter
     private lateinit var songList: ArrayList<Song>
     private var playPosition = 0
@@ -36,18 +37,29 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         setContentView(view.root)
         mp = MediaPlayer()
         db = PlayListDB(this)
-        songList = db.getData(tableName)
-        if (songList.size == 0) {
-            songList = db.getData("allSong")
-            db.setData(tableName, songList)
-        }
-        adapter = PlaylistRecyclerAdapter(songList) { position, newList ->
-            /*db.setData(tableName,newList)
-            songList = newList
-            val oldList=songList
-            if(oldList[playPosition].data!=newList[position].data){
-                setItemClick(position)
-            }*/
+        initial()
+        adapter = PlaylistRecyclerAdapter(songList) { newList ->
+            if (newList.size==0){
+                db.setData(tableName,ArrayList())
+                playPosition=0
+                val intent= Intent(this,MainActivity::class.java)
+                startActivity(intent)
+
+            }else{
+                db.setData(tableName,newList)
+                songList = newList
+                var i=0
+                while (i<newList.size){
+                    if(newList[i].is_playing){
+                        playPosition=i
+                    }
+                    i++
+                }
+            }
+            if (oldSong.data!=songList[playPosition].data){
+                setItemClick()
+            }
+
         }
         view.thesongListView.layoutManager = LinearLayoutManager(this)
         view.thesongListView.adapter = adapter
@@ -55,13 +67,6 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(view.thesongListView)
         adapter.notifyDataSetChanged()
-        var position = 0
-        while (position < songList.size) {
-            if (songList[position++].is_playing) {
-                playPosition = position - 1
-            }
-        }
-        initial()
         view.thesongPlay.setOnClickListener {
             if (isPlayEnable) {
                 if (mp.isPlaying) {
@@ -74,14 +79,14 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             }
         }
         view.thesongPrev.setOnClickListener {
-            val item = if (playPosition == 0) songList.size - 1
+            if (playPosition == 0) songList.size - 1
             else --playPosition
-            setItemClick(item)
+            setItemClick()
         }
         view.thesongNext.setOnClickListener {
             val item = if (playPosition == songList.size - 1) 0
             else ++playPosition
-            setItemClick(item)
+            setItemClick()
         }
         view.setting.setOnClickListener {
             setOnSettingClick(this, PopupMenu(this, view.setting)) { intent ->
@@ -92,7 +97,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             if (isPlayEnable) {
                 val item = if (playPosition == songList.size - 1) 0
                 else ++playPosition
-                setItemClick(item)
+                setItemClick()
             }
         }
         view.thesongShowDetail.setOnClickListener { playListDropDown() }
@@ -110,21 +115,32 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             }
 
         })
+
+        adapter.notifyDataSetChanged()
     }
 
     private fun initial() {
-        if (playPosition > -1) {
+        songList = db.getData(tableName)
+        if (songList.size == 0) {
+            songList = db.getData("allSong")
+            db.setData(tableName, songList)
+        }
+        var position = 0
+        while (position < songList.size) {
+            if (songList[position++].is_playing) {
+                playPosition = position - 1
+            }
+        }
+        songList[playPosition].is_playing=true
             val song = songList[playPosition]
-            mp.reset()
-            mp.setDataSource(songList[playPosition].data)
+            oldSong=song
             mp.reset()
             mp.setDataSource(song.data)
             mp.prepare()
             isPlayEnable = true
-            adapter.notifyDataSetChanged()
             setRunnable()
             setDetail()
-        }
+
     }
 
     private fun setRunnable() {
@@ -139,15 +155,21 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
     }
 
 
-    private fun setItemClick(position: Int) {
-        var time = 0
-        while (time < songList.size) songList[time++].is_playing = false
-        songList[position].is_playing = true
-        playPosition = position
-        initial()
-        mp.start()
-        view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+    private fun setItemClick() {
+        val currentState=mp.isPlaying
+        val song = songList[playPosition]
+        mp.reset()
+        mp.setDataSource(song.data)
+        mp.prepare()
+        isPlayEnable = true
+        if(currentState){
+            mp.start()
+            view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+        }
+        setRunnable()
+        setDetail()
         db.setData(tableName, songList)
+        adapter.notifyDataSetChanged()
 
     }
 
@@ -176,10 +198,10 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
 }
 
 fun Activity.toast(text: String) {
-    Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
 }
 
-fun Activity.getMinute(time: Int): CharSequence {
+fun getMinute(time: Int): CharSequence {
     var secs = time / 1000
     var minutes = secs / 60
     val hours = minutes / 60
