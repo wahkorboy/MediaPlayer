@@ -61,31 +61,35 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             }
 
         }
-        view.thesongListView.layoutManager = LinearLayoutManager(this)
-        view.thesongListView.adapter = adapter
+        view.ListView.layoutManager = LinearLayoutManager(this)
+        view.ListView.adapter = adapter
         val callback = CustomItemTouchHelperCallback(adapter)
         val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(view.thesongListView)
+        itemTouchHelper.attachToRecyclerView(view.ListView)
         adapter.notifyDataSetChanged()
-        view.thesongPlay.setOnClickListener {
+        view.Play.setOnClickListener {
             if (isPlayEnable) {
                 if (mp.isPlaying) {
-                    view.thesongPlay.setImageResource(R.drawable.ic_baseline_play)
+                    view.Play.setImageResource(R.drawable.ic_baseline_play)
                     mp.pause()
                 } else {
                     mp.start()
-                    view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+                    view.Play.setImageResource(R.drawable.ic_baseline_pause)
                 }
             }
         }
-        view.thesongPrev.setOnClickListener {
-            if (playPosition == 0) songList.size - 1
+        view.Prev.setOnClickListener {
+            songList[playPosition].is_playing=false
+            playPosition=if (playPosition == 0) songList.size - 1
             else --playPosition
+            songList[playPosition].is_playing=true
             setItemClick()
         }
-        view.thesongNext.setOnClickListener {
-            val item = if (playPosition == songList.size - 1) 0
+        view.Next.setOnClickListener {
+            songList[playPosition].is_playing=false
+            playPosition=if (playPosition == songList.size-1) 0
             else ++playPosition
+            songList[playPosition].is_playing=true
             setItemClick()
         }
         view.setting.setOnClickListener {
@@ -95,13 +99,15 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         }
         mp.setOnCompletionListener {
             if (isPlayEnable) {
-                val item = if (playPosition == songList.size - 1) 0
+                songList[playPosition].is_playing=false
+                playPosition=if (playPosition == songList.size-1) 0
                 else ++playPosition
+                songList[playPosition].is_playing=true
                 setItemClick()
             }
         }
-        view.thesongShowDetail.setOnClickListener { playListDropDown() }
-        view.thesongSeekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        view.ShowDetail.setOnClickListener { playListDropDown() }
+        view.Seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (isPlayEnable && mp.isPlaying && fromUser) {
                     mp.seekTo(progress)
@@ -144,11 +150,11 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
     }
 
     private fun setRunnable() {
-        view.thesongSeekbar.max = mp.duration
+        view.Seekbar.max = mp.duration
         runnable = Runnable {
             view.tvDue.text = getMinute(mp.duration - mp.currentPosition)
             view.tvPass.text = getMinute(mp.currentPosition)
-            view.thesongSeekbar.progress = mp.currentPosition
+            view.Seekbar.progress = mp.currentPosition
             handles.postDelayed(runnable, 1000)
         }
         handles.postDelayed(runnable, 1000)
@@ -164,7 +170,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         isPlayEnable = true
         if(currentState){
             mp.start()
-            view.thesongPlay.setImageResource(R.drawable.ic_baseline_pause)
+            view.Play.setImageResource(R.drawable.ic_baseline_pause)
         }
         setRunnable()
         setDetail()
@@ -175,21 +181,17 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
 
     private fun setDetail() {
         val song = songList[playPosition]
-        view.thesongTitle.text = song.title
-        view.thesongDetailName.text = song.title
-        view.thesongDetailArtist.text = song.artist
-        view.thesongDetailAlbum.text = song.album
-        view.thesongDetailDuration.text = getMinute(mp.duration)
+        view.Title.text = song.title
     }
 
     private fun playListDropDown() {
-        val detail = view.thesongDetailLayout
-        val icon = view.thesongShowDetail
-        if (detail.visibility == View.VISIBLE) {
-            detail.visibility = View.GONE
+        val playlistManagerLayout = view.PlaylistManagerLayout
+        val icon = view.ShowDetail
+        if (playlistManagerLayout.visibility == View.VISIBLE) {
+            playlistManagerLayout.visibility = View.GONE
             icon.setImageResource(R.drawable.ic_baseline_arrow_drop_down_24)
         } else {
-            detail.visibility = View.VISIBLE
+            playlistManagerLayout.visibility = View.VISIBLE
             icon.setImageResource(R.drawable.ic_baseline_arrow_drop_up_24)
         }
 

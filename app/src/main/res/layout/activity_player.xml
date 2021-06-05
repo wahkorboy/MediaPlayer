@@ -19,9 +19,9 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:textSize="15dp"
+        android:textSize="15sp"
         android:textAlignment="center"
-        android:id="@+id/thesongTitle" />
+        android:id="@+id/Title" />
     <RelativeLayout
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
@@ -46,7 +46,7 @@
         android:layout_marginLeft="10sp"
         android:layout_marginRight="10sp"
         android:layout_marginBottom="20dp"
-        android:id="@+id/thesongSeekbar"/>
+        android:id="@+id/Seekbar"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,19 +57,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:id="@+id/thesongPrev"
+            android:id="@+id/Prev"
             android:src="@drawable/ic_baseline_skip_previous_24"/>
         <ImageView
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_margin="20dp"
-            android:id="@+id/thesongPlay"
+            android:id="@+id/Play"
             android:src="@drawable/ic_baseline_play" />
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
-            android:id="@+id/thesongNext"
+            android:id="@+id/Next"
             android:src="@drawable/ic_baseline_skip_next_24"/>
 
     </LinearLayout>
@@ -77,90 +77,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/thesongDetailLayout"
-        android:visibility="gone"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-
-                android:layout_width="80dp"
-                android:layout_height="35dp"
-                android:text="NAME"
-                android:textSize="15dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:textSize="15dp"
-                android:id="@+id/thesongDetail_name" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="35dp"
-                android:text="ARTIST"
-                android:textSize="15dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:textSize="15dp"
-                android:id="@+id/thesongDetail_artist" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="35dp"
-                android:text="ALBUM"
-                android:textSize="15dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:textSize="15dp"
-                android:id="@+id/thesongDetail_album" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="35dp"
-                android:text="DURATION"
-                android:textSize="15dp"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:textSize="15dp"
-                android:id="@+id/thesongDetail_duration" />
-        </LinearLayout>
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/thesongPlaylistLayout"
+        android:id="@+id/PlaylistLayout"
         >
         <ImageView
             android:layout_width="match_parent"
             android:src="@drawable/ic_baseline_arrow_drop_down_24"
             android:layout_height="50dp"
-            android:id="@+id/thesongShowDetail"/>
+            android:id="@+id/ShowDetail"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:id="@+id/PlaylistManagerLayout"
+            android:visibility="gone"
+            >
+            <Button
+                android:layout_width="wrap_content"
+                android:text="SaveList"
+                android:layout_marginRight="20dp"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:text="Open"
+                android:layout_marginRight="20dp"
+                android:layout_height="wrap_content"/>
+            <Button
+                android:layout_width="wrap_content"
+                android:text="Add Song"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/thesongListView"
+            android:id="@+id/ListView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:itemCount="25"
