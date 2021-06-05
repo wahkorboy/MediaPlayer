@@ -59,15 +59,17 @@ class PlayListDB(context: Context):SQLiteOpenHelper(context,DATABASE_NAME,null,D
             db.execSQL("create table $tableName($dataSet)")
         }catch (e:Exception){}
         db.delete(tableName,null,null) // delete all data in table
-        for(song in list){
-            val values=ContentValues()
-            values.put(col_ALBUM,song.album)
-            values.put(col_ARTIST,song.artist)
-            values.put(col_DATA,song.data)
-            values.put(col_DURATION,song.duration)
-            values.put(col_isPlaying,if (song.is_playing) 1 else 0)
-            values.put(col_TITLE,song.title)
-            db.insert(tableName,null,values)
+        if (list.size>0){
+            for(song in list){
+                val values=ContentValues()
+                values.put(col_ALBUM,song.album)
+                values.put(col_ARTIST,song.artist)
+                values.put(col_DATA,song.data)
+                values.put(col_DURATION,song.duration)
+                values.put(col_isPlaying,if (song.is_playing) 1 else 0)
+                values.put(col_TITLE,song.title)
+                db.insert(tableName,null,values)
+            }
         }
         db.close()
     }

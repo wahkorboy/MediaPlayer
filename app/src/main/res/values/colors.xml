@@ -11,4 +11,5 @@
     <color name="unselected_playlist">#202020</color>
     <color name="unselected_btn">#aaaaaa</color>
     <color name="selected_btn">#0000aa</color>
+    <color name="edit_playlist">#ff0000</color>
 </resources>

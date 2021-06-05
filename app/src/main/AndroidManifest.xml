@@ -14,7 +14,7 @@
         <activity android:name=".ExtensionActivity" />
         <activity android:name=".TestMainActivity" />
         <activity android:name=".SleepTimeActivity" />
-        <activity android:name=".TheSongActivity">
+        <activity android:name=".PlayerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

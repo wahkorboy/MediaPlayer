@@ -4,25 +4,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
+import com.wahkor.mediaplayer.`interface`.CustomItemTouchHelperListener
 import com.wahkor.mediaplayer.model.Song
+import java.util.*
+import kotlin.collections.ArrayList
 
-class PlaylistRecyclerAdapter(var list: ArrayList<Song>, var callback: (Int) -> Unit) :
-    RecyclerView.Adapter<PlaylistRecyclerAdapter.ViewHolder>() {
+class PlaylistRecyclerAdapter(myList: ArrayList<Song>, var callback: (position:Int,newList:ArrayList<Song>) -> Unit) :
+    RecyclerView.Adapter<PlaylistRecyclerAdapter.ViewHolder>(),CustomItemTouchHelperListener {
+    val list=myList as MutableList<Song>
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.playlistTitle)
         fun bind() {
             itemView.setOnClickListener {
-                callback(adapterPosition)
+                callback(adapterPosition,list as ArrayList<Song>)
 
             }
             val song=list[adapterPosition]
             title.text =song.title
-            if (song.is_playing!!){
+            if (song.is_playing){
                 itemView.setBackgroundColor(getColor(itemView.context,R.color.selected_playlist))
             }else{
                 itemView.setBackgroundColor(getColor(itemView.context,R.color.unselected_playlist))
@@ -45,4 +48,29 @@ class PlaylistRecyclerAdapter(var list: ArrayList<Song>, var callback: (Int) -> 
     override fun onBindViewHolder(holder: PlaylistRecyclerAdapter.ViewHolder, position: Int) {
         holder.bind()
     }
+
+    override fun onItemMove(fromPosition: Int, ToPosition: Int): Boolean {
+        Collections.swap(list,fromPosition,ToPosition)
+        notifyItemMoved(fromPosition,ToPosition)
+        var i=0
+        while (i<list.size){
+            if(list[i++].is_playing){
+                callback(--i,list as ArrayList<Song>)
+            }
+        }
+        return true
+
+    }
+
+    override fun onItemDismiss(position: Int) {
+        val isCall=list[position].is_playing
+        list.removeAt(position)
+        notifyItemRemoved(position)
+        if (isCall){
+            list[0].is_playing=true
+            callback(0,list as ArrayList<Song>)
+
+        }
+    }
+
 }

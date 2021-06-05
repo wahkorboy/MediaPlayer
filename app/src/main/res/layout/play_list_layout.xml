@@ -9,4 +9,11 @@
         android:id="@+id/playlistTitle"
         android:textSize="15dp"/>
 
+    <Button
+        android:id="@+id/removeBTN"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:text="Remove" />
+
 </LinearLayout>
