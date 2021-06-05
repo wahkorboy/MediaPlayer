@@ -16,7 +16,7 @@ class SleepTimeReceiver:BroadcastReceiver() {
         if (receiverNAME != null && receiverNAME=="SleepTime" ){
             val id=db.getSleep.id
             if (receiverID==id.toString()){
-                mp.pause()
+                mp.stop()
                 Toast.makeText(context,"Time to Sleep",Toast.LENGTH_LONG).show()
             }
         }

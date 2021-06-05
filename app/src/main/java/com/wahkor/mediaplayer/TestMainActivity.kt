@@ -24,9 +24,7 @@ class TestMainActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.Submit.setOnClickListener {
             picTime(this){hours, minutes ->
-               timeManager.getMinuteDifferent(hours,minutes){
-                    binding.Submit.text=it.toString()
-                }
+               binding.Submit.text=timeManager.getMinuteDifferent(hours,minutes).toString()
             }
 
         }

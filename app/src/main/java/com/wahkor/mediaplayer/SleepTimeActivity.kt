@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -32,13 +31,13 @@ class SleepTimeActivity : AppCompatActivity() {
         view.sleepTimeText.setOnClickListener {
             picTime(this, "set BedTime ") { hours, minutes ->
                 sleep.sleepTime = (hours * 60 + minutes)
-                view.sleepTimeText.text = sleep.SleeptoString
+                view.sleepTimeText.text = sleep.sleepToString
             }
         }
         view.wakeupTimeText.setOnClickListener {
             picTime(this, "set WakeupTime ") { hours, minutes ->
                 sleep.wakeupTime = (hours * 60 + minutes)
-                view.wakeupTimeText.text = sleep.WakeuptoString
+                view.wakeupTimeText.text = sleep.wakeupToString
             }
 
         }
@@ -88,8 +87,8 @@ class SleepTimeActivity : AppCompatActivity() {
     }
 
     private fun setInitial() {
-        view.sleepTimeText.text = sleep.SleeptoString
-        view.wakeupTimeText.text = sleep.WakeuptoString
+        view.sleepTimeText.text = sleep.sleepToString
+        view.wakeupTimeText.text = sleep.wakeupToString
         view.repeatSwitch.isChecked = sleep.isRepeat
         when (sleep.delayTime) {
             0 -> setBG(view.delayNaver)

@@ -1,14 +1,19 @@
 package com.wahkor.mediaplayer
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.wahkor.mediaplayer.database.PlayListDB
+import com.wahkor.mediaplayer.database.SleepDb
+import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
+import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -86,13 +91,35 @@ class MainActivity : AppCompatActivity() {
             val currentSong= Random.nextInt(0, songList.size-1)
             songList[currentSong].is_playing=true
             db.setData(tableName,songList)
-            val intent= Intent(this,TheSongActivity::class.java)
-            //val intent= Intent(this,TestMainActivity::class.java)
-            startActivity(intent)
+            sleepTimeSetup()
         }
 
     }
+    private fun sleepTimeSetup(){
+        val sleepdb=SleepDb(this)
+        val sleep=sleepdb.getSleep
+        if (sleep.isRepeat){
+            sleep.id=Random.nextInt(1,9999999)
+            //update DB and broadcast receiver sleep.id
+            sleepdb.setSleep(sleep)
+            setAlarm(sleep)
+        }
 
+        val intent= Intent(this,TheSongActivity::class.java)
+        //val intent= Intent(this,TestMainActivity::class.java)
+         startActivity(intent)
+    }
+
+    private fun setAlarm(sleep:Sleep) {
+        val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, SleepTimeReceiver::class.java)
+        intent.putExtra("notificationID", "${sleep.id}")
+        intent.putExtra("notificationNAME", "SleepTime")
+        val pendingIntent =
+            PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.initialDelay, pendingIntent)
+
+    }
     override fun onBackPressed() {
 
     }
