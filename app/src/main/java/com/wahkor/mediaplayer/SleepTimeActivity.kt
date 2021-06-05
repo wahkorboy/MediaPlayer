@@ -44,6 +44,7 @@ class SleepTimeActivity : AppCompatActivity() {
         view.delayNaver.setOnClickListener {
             setBG(it as Button)
             sleep.delayTime = 0
+            view.repeatSwitch.isChecked=false
         }
         view.delay15.setOnClickListener {
             setBG(it as Button)
