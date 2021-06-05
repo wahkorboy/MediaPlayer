@@ -107,17 +107,18 @@ class MainActivity : AppCompatActivity() {
 
         val intent= Intent(this,TheSongActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
-         startActivity(intent)
+          startActivity(intent)
     }
 
     private fun setAlarm(sleep:Sleep) {
+      //  findViewById<TextView>(R.id.mainTextView).text=sleep.id.toString()
         val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, SleepTimeReceiver::class.java)
         intent.putExtra("notificationID", "${sleep.id}")
         intent.putExtra("notificationNAME", "SleepTime")
         val pendingIntent =
             PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.initialDelay, pendingIntent)
+        alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.getRepeatTimeDelay, pendingIntent)
 
     }
     override fun onBackPressed() {

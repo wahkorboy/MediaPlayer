@@ -44,7 +44,6 @@ class SleepTimeActivity : AppCompatActivity() {
         view.delayNaver.setOnClickListener {
             setBG(it as Button)
             sleep.delayTime = 0
-            view.repeatSwitch.isChecked = false
         }
         view.delay15.setOnClickListener {
             setBG(it as Button)
@@ -114,7 +113,7 @@ class SleepTimeActivity : AppCompatActivity() {
         intent.putExtra("notificationNAME", "SleepTime")
             val pendingIntent =
                 PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.delayMills, pendingIntent)
+            alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.getOneTimeDelay, pendingIntent)
         toast("SleepTime in ${sleep.delayTime} minutes")
 
     }

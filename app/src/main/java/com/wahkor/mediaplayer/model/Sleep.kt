@@ -26,23 +26,24 @@ data class Sleep(
             string += if (minute < 10) "0$minute" else "$minute"
             return string
         }
-    val delayMills: Long get() = System.currentTimeMillis() + (delayTime * 60 * 1000).toLong()
-    val initialDelay: Long
+    val getOneTimeDelay: Long get() = System.currentTimeMillis() + (delayTime * 60 * 1000).toLong()
+    val getRepeatTimeDelay: Long
         get() {
             var sleepWithIn = 0
             var wakeupWithIn = 0
+            val now = System.currentTimeMillis()
             tm.convertFromMinute(sleepTime) { hours, minutes ->
                 sleepWithIn = tm.getMinuteDifferent(hours, minutes)
             }
             tm.convertFromMinute(wakeupTime) { hours, minutes ->
                 wakeupWithIn = tm.getMinuteDifferent(hours, minutes)
             }
-            val minutes=if (sleepWithIn < wakeupWithIn) {
+            val minutes = if (sleepWithIn < wakeupWithIn) {
                 sleepWithIn + delayTime
             } else {
                 delayTime
             }
-            return (minutes*1000).toLong()
+            return now + (minutes * 1000 * 60).toLong()
 
         }
 }
