@@ -22,9 +22,6 @@ class GroupActivity : AppCompatActivity() {
         val listView=findViewById<RecyclerView>(R.id.groupRecyclerView)
         listView.layoutManager=LinearLayoutManager(this)
         listView.adapter=adapter
-        val abc="aa/bb/cc"
-        val ab=allSongs[0].folderPath
-        toast(ab)
 
 
     }

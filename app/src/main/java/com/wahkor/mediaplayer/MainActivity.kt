@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
             cursor?.close()
             val currentSong= Random.nextInt(0, songList.size-1)
             songList[currentSong].is_playing=true
+            songList.sortBy { it.folderPath }
             db.setData(tableName,songList)
             sleepTimeSetup()
         }
@@ -105,7 +106,7 @@ class MainActivity : AppCompatActivity() {
             setAlarm(sleep)
         }
 
-        val intent= Intent(this,GroupActivity::class.java)
+        val intent= Intent(this,PlayerActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
           startActivity(intent)
     }

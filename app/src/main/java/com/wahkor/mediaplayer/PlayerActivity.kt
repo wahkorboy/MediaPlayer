@@ -17,6 +17,7 @@ import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.databinding.ActivityPlayerBinding
 import com.wahkor.mediaplayer.model.Song
+import java.io.File
 
 var mp = MediaPlayer()
 private const val tableName = "playlist_current"
@@ -131,8 +132,20 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
         songList = db.getData(tableName)
         if (songList.size == 0) {
             songList = db.getData("allSong")
-            db.setData(tableName, songList)
         }
+        // check if file Exists
+        val newList= ArrayList<Song>()
+        for(i in 0 until songList.size-1){
+            val file= File(songList[i].data)
+            if(file.exists()){
+                newList.add(songList[i])
+            }
+
+        }
+        songList=newList
+        db.setData(tableName, songList)
+
+        //setup player
         var position = 0
         while (position < songList.size) {
             if (songList[position++].is_playing) {

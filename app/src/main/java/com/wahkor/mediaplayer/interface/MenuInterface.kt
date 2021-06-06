@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Handler
 import android.widget.PopupMenu
 import android.widget.Toast
+import com.wahkor.mediaplayer.GroupActivity
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.SleepTimeActivity
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
@@ -18,6 +19,10 @@ interface MenuInterface {
             when(it.title.toString()){
                 "SleepTime" ->{
                     val intent= Intent(context,SleepTimeActivity::class.java)
+                    callback(intent)
+                }
+                "GroupActivity"->{
+                    val intent=Intent(context,GroupActivity::class.java)
                     callback(intent)
                 }
                 else ->

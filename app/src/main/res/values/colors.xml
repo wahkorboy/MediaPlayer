@@ -12,4 +12,7 @@
     <color name="unselected_btn">#aaaaaa</color>
     <color name="selected_btn">#0000aa</color>
     <color name="edit_playlist">#ff0000</color>
+
+    <color name="playlist_group_1">#337765</color>
+    <color name="playlist_group_2">#446665</color>
 </resources>
