@@ -10,7 +10,8 @@ import android.view.View
 import android.widget.*
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.wahkor.mediaplayer.`interface`.SettingClick
+import com.wahkor.mediaplayer.`interface`.MenuInterface
+import com.wahkor.mediaplayer.`interface`.PlayerActivityInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
 import com.wahkor.mediaplayer.database.PlayListDB
@@ -20,7 +21,7 @@ import com.wahkor.mediaplayer.model.Song
 var mp = MediaPlayer()
 private const val tableName = "playlist_current"
 
-class PlayerActivity : AppCompatActivity(), SettingClick {
+class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterface {
     private lateinit var runnable: Runnable
     private var handles = Handler()
     private lateinit var oldSong:Song
@@ -28,6 +29,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
     private lateinit var songList: ArrayList<Song>
     private var playPosition = 0
     private var isPlayEnable = false
+    private var mpComplete=false
     private val binding: ActivityPlayerBinding by lazy {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
@@ -68,15 +70,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         itemTouchHelper.attachToRecyclerView(binding.ListView)
         adapter.notifyDataSetChanged()
         binding.Play.setOnClickListener {
-            if (isPlayEnable) {
-                if (mp.isPlaying) {
-                    binding.Play.setImageResource(R.drawable.ic_baseline_play)
-                    mp.pause()
-                } else {
-                    mp.start()
-                    binding.Play.setImageResource(R.drawable.ic_baseline_pause)
-                }
-            }
+            onPlayBTNClick(isPlayEnable,it as ImageView)
         }
         binding.Prev.setOnClickListener {
             songList[playPosition].is_playing=false
@@ -103,6 +97,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
                 playPosition=if (playPosition == songList.size-1) 0
                 else ++playPosition
                 songList[playPosition].is_playing=true
+                mpComplete=true
                 setItemClick()
             }
         }
@@ -125,6 +120,7 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
             val intent=Intent()
             intent.type = "audio/*"
             intent.action = Intent.ACTION_GET_CONTENT
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true)
             startActivityForResult(intent,12345)
         }
 
@@ -174,8 +170,9 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
         mp.setDataSource(song.data)
         mp.prepare()
         isPlayEnable = true
-        if(currentState){
+        if(currentState || mpComplete){
             mp.start()
+            mpComplete=false
             binding.Play.setImageResource(R.drawable.ic_baseline_pause)
         }
         setRunnable()
@@ -205,8 +202,16 @@ class PlayerActivity : AppCompatActivity(), SettingClick {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode==12345 && resultCode== RESULT_OK){
-            toast("${data?.data}")
+        if (requestCode==12345 && resultCode== RESULT_OK && data != null ){
+            if(data.data != null){
+                toast("single file")
+
+            }else if(data.clipData != null){
+                for(i in 0 until data.clipData!!.itemCount){
+
+                    val song=data.clipData!!.getItemAt(i).uri
+                }
+            }
         }
     }
 
