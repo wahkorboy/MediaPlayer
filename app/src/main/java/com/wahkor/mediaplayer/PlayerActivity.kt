@@ -69,6 +69,9 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
         val callback = CustomItemTouchHelperCallback(adapter)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.ListView)
+
+
+
         adapter.notifyDataSetChanged()
         binding.Play.setOnClickListener {
             onPlayBTNClick(isPlayEnable,it as ImageView)

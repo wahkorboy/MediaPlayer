@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.model.Song
 
-class GroupAdapter(val toastContent: Context,val allSong:MutableList<Song> ):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class GroupAdapter(val toastContent: Context, allSong:MutableList<Song> ,
+                   var callback:(song:Song)->Unit):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var playlistQuery = allSong
-    private var colorSelect=1
     override fun getItemViewType(position: Int): Int {
         return when {
-            position == 0 -> 0
-            playlistQuery[position - 1].folderPath != playlistQuery[position].folderPath -> 0
+            position == 0 -> 1
+            playlistQuery[position - 1].folderPath != playlistQuery[position].folderPath -> 1
             else -> 1
         }
     }
@@ -41,11 +41,11 @@ class GroupAdapter(val toastContent: Context,val allSong:MutableList<Song> ):Rec
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) =
         when {
             position == 0 -> {
-                val myHolder = holder as FolderVH
+                val myHolder = holder as SongVH
                 myHolder.binding()
             }
             playlistQuery[position - 1].folderPath != playlistQuery[position].folderPath -> {
-                val myHolder = holder as FolderVH
+                val myHolder = holder as SongVH
                 myHolder.binding()
             }
             else -> {
@@ -62,16 +62,7 @@ class GroupAdapter(val toastContent: Context,val allSong:MutableList<Song> ):Rec
         fun binding() {
             folderName.text = playlistQuery[adapterPosition].folderName
             songName.text = playlistQuery[adapterPosition].title
-            when(colorSelect){
-                1 ->{
-                    itemView.setBackgroundColor(getColor(itemView.context,R.color.playlist_group_2))
-                    colorSelect=2
-                }
-                2 ->{
-                    itemView.setBackgroundColor(getColor(itemView.context,R.color.playlist_group_1))
-                    colorSelect=1
-                }
-            }
+            folderName.setOnClickListener {  }
 
         }
 
@@ -80,16 +71,25 @@ class GroupAdapter(val toastContent: Context,val allSong:MutableList<Song> ):Rec
     inner class SongVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val songName = itemView.findViewById<TextView>(R.id.groupSongTitle)
         fun binding() {
-                songName.text = playlistQuery[adapterPosition].title
-            when(colorSelect){
-                1 ->{
-                    itemView.setBackgroundColor(getColor(itemView.context,R.color.playlist_group_1))
-                }
-                2 ->{
-                    itemView.setBackgroundColor(getColor(itemView.context,R.color.playlist_group_2))
-                }
+            val song=playlistQuery[adapterPosition]
+                songName.text = song.title
+            if(song.is_playing){
+                songName.setBackgroundColor(getColor(itemView.context,R.color.selected_playlist))
+            }else{
+                songName.setBackgroundColor(getColor(itemView.context,R.color.unselected_playlist))
+
             }
+                songName.setOnClickListener {
+                    for(i in 0 until playlistQuery.size-1){
+                        playlistQuery[i].is_playing=false
+                    }
+                    playlistQuery[adapterPosition].is_playing=true
+                    callback(playlistQuery[adapterPosition])
+                    notifyDataSetChanged() }
+
             }
         }
     }
+
+
 

@@ -29,4 +29,8 @@ class CustomItemTouchHelperCallback(private var listener: CustomItemTouchHelperL
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         listener.onItemDismiss(viewHolder.adapterPosition)
     }
+
+    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+        super.onSelectedChanged(viewHolder, actionState)
+    }
 }
