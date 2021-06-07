@@ -8,10 +8,11 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
+import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
 
 class GroupAdapter(val toastContent: Context, allSong:MutableList<Song> ,
-                   var callback:(song:Song)->Unit):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                   var callback:(song:Song,returnList:MutableList<Song>)->Unit):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var playlistQuery = allSong
     override fun getItemViewType(position: Int): Int {
         return when {
@@ -80,11 +81,11 @@ class GroupAdapter(val toastContent: Context, allSong:MutableList<Song> ,
 
             }
                 songName.setOnClickListener {
-                    for(i in 0 until playlistQuery.size-1){
+                    for(i in 0 until playlistQuery.size){
                         playlistQuery[i].is_playing=false
                     }
                     playlistQuery[adapterPosition].is_playing=true
-                    callback(playlistQuery[adapterPosition])
+                    callback(playlistQuery[adapterPosition],playlistQuery)
                     notifyDataSetChanged() }
 
             }

@@ -5,7 +5,6 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import com.wahkor.mediaplayer.model.Song
@@ -13,6 +12,7 @@ import com.wahkor.mediaplayer.model.Song
 class MusicPlayer {
     companion object {
         var mp = MediaPlayer()
+        private var isComplete=false
         private var isReady = false
         private var current = Song("random", "", "", 0, false, "")
     }
@@ -23,6 +23,8 @@ class MusicPlayer {
         mp.setDataSource(current.data)
         mp.prepare()
         isReady = true
+        isComplete=false
+        mp.setOnCompletionListener { isComplete=true }
         return true
     }
 
@@ -155,5 +157,7 @@ class MusicPlayer {
         }
         return text
 
+    }
+    val complete:Boolean get() { return isComplete
     }
 }
