@@ -6,6 +6,7 @@ import com.wahkor.mediaplayer.model.Song
 import java.io.File
 
 interface GroupActivityInterface {
+    fun nextClick()
     fun mediaPlayer(context: Context, song: Song, action:String):Boolean{
         val file= File(song.data)
         return if(file.exists()){
@@ -17,6 +18,7 @@ interface GroupActivityInterface {
                         mp.action("play",context)
                     }
         }else{
+            nextClick()
             false
         }
     }

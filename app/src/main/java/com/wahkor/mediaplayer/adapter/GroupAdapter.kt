@@ -8,11 +8,15 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
+import com.wahkor.mediaplayer.`interface`.CustomItemTouchHelperListener
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
+import java.util.*
 
 class GroupAdapter(val toastContent: Context, allSong:MutableList<Song> ,
-                   var callback:(song:Song,returnList:MutableList<Song>)->Unit):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                   var callback:(song:Song,returnList:MutableList<Song>,action:String)->Unit)
+    :RecyclerView.Adapter<RecyclerView.ViewHolder>() ,
+CustomItemTouchHelperListener{
     private var playlistQuery = allSong
     override fun getItemViewType(position: Int): Int {
         return when {
@@ -85,12 +89,26 @@ class GroupAdapter(val toastContent: Context, allSong:MutableList<Song> ,
                         playlistQuery[i].is_playing=false
                     }
                     playlistQuery[adapterPosition].is_playing=true
-                    callback(playlistQuery[adapterPosition],playlistQuery)
+                    callback(playlistQuery[adapterPosition],playlistQuery,"ItemClick")
                     notifyDataSetChanged() }
 
             }
         }
+
+    override fun onItemMove(fromPosition: Int, ToPosition: Int): Boolean {
+        Collections.swap(playlistQuery,fromPosition,ToPosition)
+        for (i in 0 until playlistQuery.size){
+            if (playlistQuery[i].is_playing){
+                callback(playlistQuery[i],playlistQuery,"ItemMove")
+            }
+        }
+        notifyItemMoved(fromPosition,ToPosition)
+        return true
     }
+
+    override fun onItemDismiss(position: Int) {
+    }
+}
 
 
 

@@ -3,14 +3,16 @@ package com.wahkor.mediaplayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.`interface`.GroupActivityInterface
+import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.GroupAdapter
+import com.wahkor.mediaplayer.adapter.GroupTouchHelperCallback
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
 
@@ -31,39 +33,39 @@ class GroupActivity : AppCompatActivity(), GroupActivityInterface {
     private lateinit var prevBtn : ImageView
     private lateinit var playBtn :ImageView
     private lateinit var nextBtn :ImageView
+    private lateinit var recyclerView:RecyclerView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group)
-        title = findViewById<TextView>(R.id.groupViewTitle)
-        pass = findViewById<TextView>(R.id.groupTvPass)
-        due = findViewById<TextView>(R.id.groupTvDue)
-        seekbar = findViewById<SeekBar>(R.id.groupSeekbar)
-        prevBtn = findViewById<ImageView>(R.id.groupPrevBTN)
-        playBtn = findViewById<ImageView>(R.id.groupPlayBTN)
-        nextBtn = findViewById<ImageView>(R.id.groupNextBTN)
+        recyclerView = findViewById(R.id.groupRecyclerView)
+        title = findViewById(R.id.groupViewTitle)
+        pass = findViewById(R.id.groupTvPass)
+        due = findViewById(R.id.groupTvDue)
+        seekbar = findViewById(R.id.groupSeekbar)
+        prevBtn = findViewById(R.id.groupPrevBTN)
+        playBtn = findViewById(R.id.groupPlayBTN)
+        nextBtn = findViewById(R.id.groupNextBTN)
         db = PlayListDB(this)
         allSongs = db.getData("allSong")
         allSongs.sortBy { it.folderPath }
-        adapter = GroupAdapter(this, allSongs) { song,returnList ->
+        adapter = GroupAdapter(this, allSongs) { song,returnList,action ->
+
             allSongs=returnList
-            mediaPlayer(this, song, "play")
             current = song
-        }
-        val listView = findViewById<RecyclerView>(R.id.groupRecyclerView)
-        listView.layoutManager = LinearLayoutManager(this)
-        listView.adapter = adapter
-        initial()
-        nextBtn.setOnClickListener {
-            var position=0
-            for (i in 0 until allSongs.size){
-                if (allSongs[i].is_playing){
-                    position=if (i==allSongs.size-1) 0 else i+1
-                    allSongs[i].is_playing=false
+            when(action){
+                "ItemClick" -> {
+                    mediaPlayer(this, song, "play")
                 }
             }
-            allSongs[position].is_playing=true
-            mediaPlayer(this,allSongs[position],"play")
-            adapter.notifyDataSetChanged()
+        }
+        val callback=GroupTouchHelperCallback(adapter)
+        val itemTouchHelperCallback=ItemTouchHelper(callback)
+        itemTouchHelperCallback.attachToRecyclerView(recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+        initial()
+        nextBtn.setOnClickListener {
+            nextClick()
         }
 
         prevBtn.setOnClickListener {
@@ -128,4 +130,17 @@ class GroupActivity : AppCompatActivity(), GroupActivityInterface {
             }
             handler.postDelayed(runnable, 1000)
         }
+
+    override fun nextClick() {
+        var position=0
+        for (i in 0 until allSongs.size){
+            if (allSongs[i].is_playing){
+                position=if (i==allSongs.size-1) 0 else i+1
+                allSongs[i].is_playing=false
+            }
+        }
+        allSongs[position].is_playing=true
+        mediaPlayer(this,allSongs[position],"play")
+        adapter.notifyDataSetChanged()
     }
+}

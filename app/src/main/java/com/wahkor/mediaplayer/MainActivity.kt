@@ -1,7 +1,6 @@
 package com.wahkor.mediaplayer
 
-import android.app.AlarmManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,6 +13,8 @@ import com.wahkor.mediaplayer.database.SleepDb
 import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -124,5 +125,45 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onBackPressed() {
 
+    }
+}
+
+
+fun Activity.picTime(context: Context, title:String="", callback:(hours:Int, minutes:Int)->Unit){
+    Calendar.getInstance().apply {
+        val timeSelect= TimePickerDialog(context,0,
+            {_,hourOfDay,minute ->
+                this.set(Calendar.HOUR_OF_DAY,hourOfDay)
+                this.set(Calendar.MINUTE,minute)
+                callback(hourOfDay,minute)
+            },
+            this.get(Calendar.HOUR_OF_DAY),
+            this.get(Calendar.MINUTE),
+            false)
+        timeSelect.setTitle(title)
+        timeSelect.show()
+
+    }
+}
+
+fun Activity.picDate(context: Context, includeTime:Boolean=false, callback:(hours:Int, minutes:Int, dayOfMonth:Int, month:Int, year:Int)->Unit){
+
+    Calendar.getInstance().apply {
+        DatePickerDialog(context,0, { _, year, month, dayOfMonth ->
+            this.set(Calendar.YEAR,year)
+            this.set(Calendar.MONTH,month)
+            this.set(Calendar.DAY_OF_MONTH,dayOfMonth)
+            if (includeTime){
+                picTime(context){hours, minutes ->
+                    callback(hours, minutes,dayOfMonth,month,year)
+                }
+            }else{
+                callback(0, 0,dayOfMonth,month,year)
+            }
+        },
+            this.get(Calendar.YEAR),
+            this.get(Calendar.MONTH),
+            this.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 }

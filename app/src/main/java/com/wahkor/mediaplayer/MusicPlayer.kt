@@ -11,7 +11,7 @@ import com.wahkor.mediaplayer.model.Song
 
 class MusicPlayer {
     companion object {
-        var mp = MediaPlayer()
+        private var mp = MediaPlayer()
         private var isComplete=false
         private var isReady = false
         private var current = Song("random", "", "", 0, false, "")
@@ -99,7 +99,7 @@ class MusicPlayer {
         }
     }
 
-    fun toast(context: Context, message: String) {
+    private fun toast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
@@ -114,6 +114,7 @@ class MusicPlayer {
     val album: String get() = current.album
     val data: String get()=current.data
     val isPlaying: Boolean get()=mp.isPlaying
+    val ready:Boolean get() = isReady
     val passString:String get() {
         var sec=mp.currentPosition/1000
         var minute=sec/60
