@@ -6,16 +6,25 @@
     android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".PlayerActivity">
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:gravity="right"
-        android:layout_margin="5dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" >
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/ic_baseline_menu_24"
+
+            android:id="@+id/menu"/>
+        <ImageView
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/setting"
-            android:src="@drawable/ic_baseline_settings_24"/></RelativeLayout>
+            android:src="@drawable/ic_baseline_settings_24"/></androidx.constraintlayout.widget.ConstraintLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -84,6 +93,13 @@
             android:src="@drawable/ic_baseline_arrow_drop_down_24"
             android:layout_height="50dp"
             android:id="@+id/ShowDetail"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/playlistName"
+            android:textAlignment="center"
+            tools:text="playlist name"
+            android:textSize="20sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -92,23 +108,7 @@
             android:gravity="center"
             android:id="@+id/PlaylistManagerLayout"
             android:visibility="gone"
-            >
-            <Button
-                android:layout_width="wrap_content"
-                android:text="SaveList"
-                android:layout_marginRight="20dp"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:text="Open"
-                android:layout_marginRight="20dp"
-                android:layout_height="wrap_content"/>
-            <Button
-                android:layout_width="wrap_content"
-                android:text="Add Song"
-                android:id="@+id/addSongToList"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ListView"
             android:layout_width="match_parent"

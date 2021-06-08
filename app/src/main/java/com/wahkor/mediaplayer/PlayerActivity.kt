@@ -1,11 +1,14 @@
 package com.wahkor.mediaplayer
 
+import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.*
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,12 +23,13 @@ import java.io.File
 
 
 class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
+
     private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
     private val tableName = "playlist_current"
     private var handles = Handler()
     private lateinit var adapter: PlaylistAdapter
-    private lateinit var songList: ArrayList<Song>
+    private lateinit var songList: MutableList<Song>
     private val binding: ActivityPlayerBinding by lazy {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
@@ -42,16 +46,15 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
                     position = i
                 }
             }
-            newList[position].is_playing = true
             songList = newList
-            val song = newList[position]
             when (Action) {
                 "ItemClicked" -> {
-                    mediaPlayer(this, song, "play")
+                    newList[position].is_playing = true
+                    mediaPlayer(this,newList[position], "play")
 
                 }
             }
-            db.setData(tableName, songList)
+            db.setData(tableName, songList as ArrayList<Song>)
 
         }
         binding.ListView.layoutManager = LinearLayoutManager(this)
@@ -60,13 +63,14 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(binding.ListView)
 
-
-
-        adapter.notifyDataSetChanged()
-
         binding.setting.setOnClickListener {
             setOnSettingClick(this, PopupMenu(this, binding.setting)) { intent ->
                 startActivity(intent)
+            }
+        }
+        binding.menu.setOnClickListener {
+            setOnMenuClick(this, PopupMenu(this,binding.menu),tableName){ intent ->
+                resultContract.launch(intent)
             }
         }
         binding.Prev.setOnClickListener { prevClick() }
@@ -90,13 +94,6 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
             }
 
         })
-        binding.addSongToList.setOnClickListener {
-            val intent = Intent()
-            intent.type = "audio/*"
-            intent.action = Intent.ACTION_GET_CONTENT
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            startActivityForResult(intent, 12345)
-        }
 
         adapter.notifyDataSetChanged()
     }
@@ -116,7 +113,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
 
         }
         songList = newList
-        db.setData(tableName, songList)
+        db.setData(tableName, songList as ArrayList<Song>)
 
         //setup player
         var position = 0
@@ -141,6 +138,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
             if (mp.complete){
                 nextClick()
             }
+            binding.playlistName.text=tableName
             binding.Title.text = mp.title
             binding.Seekbar.max = mp.duration
             binding.tvDue.text = mp.dueString
@@ -194,7 +192,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
 
     }
 
-    fun prevClick() {
+    private fun prevClick() {
         var position = 0
         for (i in 0 until songList.size) {
             if (songList[i].is_playing) {
@@ -205,6 +203,22 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
         songList[position].is_playing = true
         mediaPlayer(this, songList[position], "play")
         adapter.notifyDataSetChanged()
+    }
+    private val resultContract=registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result: ActivityResult?->
+        when(result?.resultCode){
+            Activity.RESULT_OK->{
+                val data=result.data
+                if (data != null){
+                    val myResult=data.getStringExtra("result")
+                    if(myResult=="Added"){
+                        val intent = intent
+                        finish()
+                        startActivity(intent)
+                    }
+                }
+            }
+        }
+
     }
 
 }

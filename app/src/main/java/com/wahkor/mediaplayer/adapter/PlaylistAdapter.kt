@@ -13,8 +13,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class PlaylistAdapter(
-    myList: ArrayList<Song>,
-    var callback: ( newList: ArrayList<Song>,action:String) -> Unit
+    myList: MutableList<Song>,
+    var callback: ( newList: MutableList<Song>,action:String) -> Unit
 ) :
     RecyclerView.Adapter<PlaylistAdapter.ViewHolder>(), CustomItemTouchHelperListener {
     val list = myList as MutableList<Song>
@@ -51,6 +51,7 @@ class PlaylistAdapter(
             list[position].is_playing=true
 
         }
+
         return list as ArrayList<Song>
     }
     override fun onCreateViewHolder(
@@ -84,7 +85,9 @@ class PlaylistAdapter(
             if (isCall) {
                 callback(updateList(position),"ItemRemoved")
 
-           }
+           }else{
+               callback(list as ArrayList<Song>,"ItemRemoved")
+            }
         notifyItemRemoved(position)
 
     }

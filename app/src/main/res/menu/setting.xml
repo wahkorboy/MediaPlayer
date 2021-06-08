@@ -3,7 +3,7 @@
     <item android:id="@+id/item1"
         android:title="item1" />
     <item android:id="@+id/item2"
-        android:title="GroupActivity" />
+        android:title="AddPlaylist" />
     <item android:id="@+id/sleepTime"
         android:title="SleepTime" />
 </menu>

@@ -11,8 +11,8 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
-        <activity android:name=".Music"></activity>
-        <activity android:name=".ExtensionActivity" />
+        <activity android:name=".SaveAsActivity"></activity>
+        <activity android:name=".AddSongToPlaylistActivity" />
         <activity android:name=".TestMainActivity" />
         <activity android:name=".SleepTimeActivity" />
         <activity android:name=".PlayerActivity">
