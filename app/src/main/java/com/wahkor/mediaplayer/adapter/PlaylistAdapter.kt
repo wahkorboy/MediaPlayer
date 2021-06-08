@@ -1,6 +1,5 @@
 package com.wahkor.mediaplayer.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,18 +12,19 @@ import com.wahkor.mediaplayer.model.Song
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PlaylistRecyclerAdapter(
+class PlaylistAdapter(
     myList: ArrayList<Song>,
-    var callback: ( newList: ArrayList<Song>) -> Unit
+    var callback: ( newList: ArrayList<Song>,action:String) -> Unit
 ) :
-    RecyclerView.Adapter<PlaylistRecyclerAdapter.ViewHolder>(), CustomItemTouchHelperListener {
+    RecyclerView.Adapter<PlaylistAdapter.ViewHolder>(), CustomItemTouchHelperListener {
     val list = myList as MutableList<Song>
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.playlistTitle)
         fun bind() {
             itemView.setOnClickListener {
-                callback( updateList(adapterPosition))
+                callback( updateList(adapterPosition),"ItemClicked")
+                notifyDataSetChanged()
 
             }
             val song = list[adapterPosition]
@@ -56,7 +56,7 @@ class PlaylistRecyclerAdapter(
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): PlaylistRecyclerAdapter.ViewHolder {
+    ): PlaylistAdapter.ViewHolder {
         val itemView: View =
             LayoutInflater.from(parent.context).inflate(R.layout.play_list_layout, parent, false)
 
@@ -65,14 +65,14 @@ class PlaylistRecyclerAdapter(
 
     override fun getItemCount(): Int = list.size
 
-    override fun onBindViewHolder(holder: PlaylistRecyclerAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PlaylistAdapter.ViewHolder, position: Int) {
         holder.bind()
     }
 
     override fun onItemMove(fromPosition: Int, ToPosition: Int): Boolean {
         Collections.swap(list, fromPosition, ToPosition)
+        callback(list as ArrayList<Song>,"ItemMoved")
         notifyItemMoved(fromPosition, ToPosition)
-        callback(list as ArrayList<Song>)
         return true
 
     }
@@ -82,13 +82,9 @@ class PlaylistRecyclerAdapter(
             val isCall = list[position].is_playing
             list.removeAt(position)
             if (isCall) {
-                callback(updateList(position))
+                callback(updateList(position),"ItemRemoved")
 
-           } //else {
-           //     Log.d("last item","last item")
-           //     callback(ArrayList())
-           // }
-       // }
+           }
         notifyItemRemoved(position)
 
     }

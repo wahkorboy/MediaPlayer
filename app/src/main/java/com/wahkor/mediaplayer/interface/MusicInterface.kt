@@ -5,7 +5,7 @@ import com.wahkor.mediaplayer.MusicPlayer
 import com.wahkor.mediaplayer.model.Song
 import java.io.File
 
-interface GroupActivityInterface {
+interface MusicInterface {
     fun nextClick()
     fun mediaPlayer(context: Context, song: Song, action:String):Boolean{
         val file= File(song.data)

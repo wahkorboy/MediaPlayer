@@ -9,14 +9,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.wahkor.mediaplayer.`interface`.GroupActivityInterface
-import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
+import com.wahkor.mediaplayer.`interface`.MusicInterface
 import com.wahkor.mediaplayer.adapter.GroupAdapter
 import com.wahkor.mediaplayer.adapter.GroupTouchHelperCallback
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.model.Song
 
-class GroupActivity : AppCompatActivity(), GroupActivityInterface {
+class Music : AppCompatActivity(), MusicInterface {
     private lateinit var runnable: Runnable
     private lateinit var checkComplete:Runnable
     private var handler = Handler()

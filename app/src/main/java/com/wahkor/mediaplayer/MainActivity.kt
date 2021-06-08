@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.wahkor.mediaplayer.database.PlayListDB
@@ -98,16 +99,16 @@ class MainActivity : AppCompatActivity() {
 
     }
     private fun sleepTimeSetup(){
-        val sleepdb=SleepDb(this)
-        val sleep=sleepdb.getSleep
+        val sleepDb=SleepDb(this)
+        val sleep=sleepDb.getSleep
         if (sleep.isRepeat){
             sleep.id=Random.nextInt(1,9999999)
             //update DB and broadcast receiver sleep.id
-            sleepdb.setSleep(sleep)
+            sleepDb.setSleep(sleep)
             setAlarm(sleep)
         }
 
-        val intent= Intent(this,GroupActivity::class.java)
+        val intent= Intent(this,PlayerActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
           startActivity(intent)
     }
@@ -166,4 +167,17 @@ fun Activity.picDate(context: Context, includeTime:Boolean=false, callback:(hour
             this.get(Calendar.DAY_OF_MONTH)
         ).show()
     }
+}
+
+fun Activity.toast(text: String) {
+    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+}
+
+fun getMinute(time: Int): CharSequence {
+    var secs = time / 1000
+    var minutes = secs / 60
+    val hours = minutes / 60
+    minutes -= hours * 60
+    secs = secs - minutes * 60 - hours * 60 * 60
+    return "${if (hours == 0) "" else "$hours:"}${if (minutes < 10) "0$minutes:" else "$minutes:"}${if (secs < 10) "0$secs" else "$secs"}"
 }

@@ -1,16 +1,12 @@
 package com.wahkor.mediaplayer.`interface`
 
-import android.app.AlarmManager.RTC_WAKEUP
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
 import android.widget.PopupMenu
 import android.widget.Toast
-import com.wahkor.mediaplayer.GroupActivity
+import com.wahkor.mediaplayer.Music
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.SleepTimeActivity
-import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
-import com.wahkor.mediaplayer.model.Song
 
 interface MenuInterface {
     fun setOnSettingClick(context: Context,popupMenu: PopupMenu,callback:(Intent) -> Unit){
@@ -21,8 +17,8 @@ interface MenuInterface {
                     val intent= Intent(context,SleepTimeActivity::class.java)
                     callback(intent)
                 }
-                "GroupActivity"->{
-                    val intent=Intent(context,GroupActivity::class.java)
+                "Music"->{
+                    val intent=Intent(context,Music::class.java)
                     callback(intent)
                 }
                 else ->

@@ -1,36 +1,31 @@
 package com.wahkor.mediaplayer
 
-import android.app.Activity
 import android.content.Intent
-import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
 import android.widget.*
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wahkor.mediaplayer.`interface`.MenuInterface
-import com.wahkor.mediaplayer.`interface`.PlayerActivityInterface
+import com.wahkor.mediaplayer.`interface`.MusicInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
-import com.wahkor.mediaplayer.adapter.PlaylistRecyclerAdapter
+import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.databinding.ActivityPlayerBinding
 import com.wahkor.mediaplayer.model.Song
 import java.io.File
 
-var mp = MediaPlayer()
-private const val tableName = "playlist_current"
 
-class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterface {
+class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
+    private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
+    private val tableName = "playlist_current"
     private var handles = Handler()
-    private lateinit var oldSong:Song
-    private lateinit var adapter: PlaylistRecyclerAdapter
+    private lateinit var adapter: PlaylistAdapter
     private lateinit var songList: ArrayList<Song>
-    private var playPosition = 0
-    private var isPlayEnable = false
-    private var mpComplete=false
     private val binding: ActivityPlayerBinding by lazy {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
@@ -38,30 +33,25 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        mp = MediaPlayer()
         db = PlayListDB(this)
         initial()
-        adapter = PlaylistRecyclerAdapter(songList) { newList ->
-            if (newList.size==0){
-                db.setData(tableName,ArrayList())
-                playPosition=0
-                val intent= Intent(this,MainActivity::class.java)
-                startActivity(intent)
-
-            }else{
-                db.setData(tableName,newList)
-                songList = newList
-                var i=0
-                while (i<newList.size){
-                    if(newList[i].is_playing){
-                        playPosition=i
-                    }
-                    i++
+        adapter = PlaylistAdapter(songList) { newList, Action ->
+            var position = 0
+            for (i in 0 until newList.size) {
+                if (newList[i].is_playing) {
+                    position = i
                 }
             }
-            if (oldSong.data!=songList[playPosition].data){
-                setItemClick()
+            newList[position].is_playing = true
+            songList = newList
+            val song = newList[position]
+            when (Action) {
+                "ItemClicked" -> {
+                    mediaPlayer(this, song, "play")
+
+                }
             }
+            db.setData(tableName, songList)
 
         }
         binding.ListView.layoutManager = LinearLayoutManager(this)
@@ -73,42 +63,22 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
 
 
         adapter.notifyDataSetChanged()
-        binding.Play.setOnClickListener {
-            onPlayBTNClick(isPlayEnable,it as ImageView)
-        }
-        binding.Prev.setOnClickListener {
-            songList[playPosition].is_playing=false
-            playPosition=if (playPosition == 0) songList.size - 1
-            else --playPosition
-            songList[playPosition].is_playing=true
-            setItemClick()
-        }
-        binding.Next.setOnClickListener {
-            songList[playPosition].is_playing=false
-            playPosition=if (playPosition == songList.size-1) 0
-            else ++playPosition
-            songList[playPosition].is_playing=true
-            setItemClick()
-        }
+
         binding.setting.setOnClickListener {
             setOnSettingClick(this, PopupMenu(this, binding.setting)) { intent ->
                 startActivity(intent)
             }
         }
-        mp.setOnCompletionListener {
-            if (isPlayEnable) {
-                songList[playPosition].is_playing=false
-                playPosition=if (playPosition == songList.size-1) 0
-                else ++playPosition
-                songList[playPosition].is_playing=true
-                mpComplete=true
-                setItemClick()
-            }
+        binding.Prev.setOnClickListener { prevClick() }
+        binding.Next.setOnClickListener { nextClick() }
+        binding.Play.setOnClickListener {
+            if (mp.isPlaying) mp.action("pause", this)
+            else mp.action("play", this)
         }
         binding.ShowDetail.setOnClickListener { playListDropDown() }
         binding.Seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (isPlayEnable && mp.isPlaying && fromUser) {
+                if (fromUser && mp.isPlaying) {
                     mp.seekTo(progress)
                 }
             }
@@ -121,11 +91,11 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
 
         })
         binding.addSongToList.setOnClickListener {
-            val intent=Intent()
+            val intent = Intent()
             intent.type = "audio/*"
             intent.action = Intent.ACTION_GET_CONTENT
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true)
-            startActivityForResult(intent,12345)
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            startActivityForResult(intent, 12345)
         }
 
         adapter.notifyDataSetChanged()
@@ -137,71 +107,50 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
             songList = db.getData("allSong")
         }
         // check if file Exists
-        val newList= ArrayList<Song>()
-        for(i in 0 until songList.size-1){
-            val file= File(songList[i].data)
-            if(file.exists()){
+        val newList = ArrayList<Song>()
+        for (i in 0 until songList.size) {
+            val file = File(songList[i].data)
+            if (file.exists()) {
                 newList.add(songList[i])
             }
 
         }
-        songList=newList
+        songList = newList
         db.setData(tableName, songList)
 
         //setup player
         var position = 0
-        while (position < songList.size) {
-            if (songList[position++].is_playing) {
-                playPosition = position - 1
-            }
+        for (i in 0 until songList.size) {
+            if (songList[i].is_playing) position = i
         }
-        songList[playPosition].is_playing=true
-            val song = songList[playPosition]
-            oldSong=song
-            mp.reset()
-            mp.setDataSource(song.data)
-            mp.prepare()
-            isPlayEnable = true
-            setRunnable()
-            setDetail()
+        songList[position].is_playing = true
+        val song = songList[position]
+        mediaPlayer(this, song, "Non")
+        setRunnable()
 
     }
 
     private fun setRunnable() {
-        binding.Seekbar.max = mp.duration
         runnable = Runnable {
-            binding.tvDue.text = getMinute(mp.duration - mp.currentPosition)
-            binding.tvPass.text = getMinute(mp.currentPosition)
+            binding.Play.setImageDrawable(
+                if (mp.isPlaying)
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_pause, null)
+                else
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_play, null)
+            )
+            if (mp.complete){
+                nextClick()
+            }
+            binding.Title.text = mp.title
+            binding.Seekbar.max = mp.duration
+            binding.tvDue.text = mp.dueString
+            binding.tvPass.text = mp.passString
             binding.Seekbar.progress = mp.currentPosition
             handles.postDelayed(runnable, 1000)
         }
         handles.postDelayed(runnable, 1000)
     }
 
-
-    private fun setItemClick() {
-        val currentState=mp.isPlaying
-        val song = songList[playPosition]
-        mp.reset()
-        mp.setDataSource(song.data)
-        mp.prepare()
-        isPlayEnable = true
-        if(currentState || mpComplete){
-            mp.start()
-            mpComplete=false
-            binding.Play.setImageResource(R.drawable.ic_baseline_pause)
-        }
-        setRunnable()
-        setDetail()
-        db.setData(tableName, songList)
-        adapter.notifyDataSetChanged()
-
-    }
-
-    private fun setDetail() {
-        val song = songList[playPosition]
-        binding.Title.text = song.title
-    }
 
     private fun playListDropDown() {
         val playlistManagerLayout = binding.PlaylistManagerLayout
@@ -218,30 +167,44 @@ class PlayerActivity : AppCompatActivity(), MenuInterface,PlayerActivityInterfac
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode==12345 && resultCode== RESULT_OK && data != null ){
-            if(data.data != null){
+        if (requestCode == 12345 && resultCode == RESULT_OK && data != null) {
+            if (data.data != null) {
                 toast("single file")
 
-            }else if(data.clipData != null){
-                for(i in 0 until data.clipData!!.itemCount){
+            } else if (data.clipData != null) {
+                for (i in 0 until data.clipData!!.itemCount) {
 
-                    val song=data.clipData!!.getItemAt(i).uri
+                    val song = data.clipData!!.getItemAt(i).uri
                 }
             }
         }
     }
 
-}
+    override fun nextClick() {
+        var position = 0
+        for (i in 0 until songList.size) {
+            if (songList[i].is_playing) {
+                position = if (i == songList.size - 1) 0 else i + 1
+                songList[i].is_playing = false
+            }
+        }
+        songList[position].is_playing = true
+        mediaPlayer(this, songList[position], "play")
+        adapter.notifyDataSetChanged()
 
-fun Activity.toast(text: String) {
-    Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
-}
+    }
 
-fun getMinute(time: Int): CharSequence {
-    var secs = time / 1000
-    var minutes = secs / 60
-    val hours = minutes / 60
-    minutes -= hours * 60
-    secs = secs - minutes * 60 - hours * 60 * 60
-    return "${if (hours == 0) "" else "$hours:"}${if (minutes < 10) "0$minutes:" else "$minutes:"}${if (secs < 10) "0$secs" else "$secs"}"
+    fun prevClick() {
+        var position = 0
+        for (i in 0 until songList.size) {
+            if (songList[i].is_playing) {
+                position = if (i == 0) songList.size - 1 else i - 1
+                songList[i].is_playing = false
+            }
+        }
+        songList[position].is_playing = true
+        mediaPlayer(this, songList[position], "play")
+        adapter.notifyDataSetChanged()
+    }
+
 }

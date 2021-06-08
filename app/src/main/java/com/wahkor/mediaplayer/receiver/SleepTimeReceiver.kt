@@ -4,11 +4,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import com.wahkor.mediaplayer.MusicPlayer
 import com.wahkor.mediaplayer.database.SleepDb
-import com.wahkor.mediaplayer.mp
 
 class SleepTimeReceiver:BroadcastReceiver() {
     private lateinit var db:SleepDb
+    private val mp=MusicPlayer()
     override fun onReceive(context: Context?, intent: Intent?) {
         db= SleepDb(context!!)
         val receiverID=intent?.getStringExtra("notificationID")
@@ -16,7 +17,7 @@ class SleepTimeReceiver:BroadcastReceiver() {
         if (receiverNAME != null && receiverNAME=="SleepTime" ){
             val id=db.getSleep.id
             if (receiverID==id.toString()){
-                mp.stop()
+                mp.action("stop",context)
                 Toast.makeText(context,"Time to Sleep",Toast.LENGTH_LONG).show()
             }
         }
