@@ -151,13 +151,15 @@ class SaveAsActivity : AppCompatActivity() {
             fun bind() {
                 text.text = list[adapterPosition].name
                 if (list[adapterPosition].isSelected) {
-                    itemView.setBackgroundColor(getColor(itemView.context, R.color.selected_btn))
+                    itemView.setBackgroundColor(getColor(itemView.context, R.color.selected_playlist))
                     if(list[adapterPosition].name!="default"){
                         binding.saveAaDelBTN.visibility=View.VISIBLE
                     }
 
+                    3
+
                 } else {
-                    itemView.setBackgroundColor(getColor(itemView.context, R.color.unselected_btn))
+                    itemView.setBackgroundColor(getColor(itemView.context, R.color.unselected_playlist))
                     binding.saveAaDelBTN.visibility=View.GONE
 
                 }

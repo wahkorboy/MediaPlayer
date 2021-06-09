@@ -3,6 +3,7 @@ package com.wahkor.mediaplayer
 import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResult
@@ -27,7 +28,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
     private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
     private lateinit var tableName :String
-    private var handles = Handler()
+    private var handles = Handler(Looper.getMainLooper())
     private lateinit var adapter: PlaylistAdapter
     private lateinit var songList: MutableList<Song>
     private val binding: ActivityPlayerBinding by lazy {

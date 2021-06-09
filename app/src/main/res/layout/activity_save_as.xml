@@ -7,55 +7,67 @@
     android:padding="15dp"
     android:layout_height="match_parent"
     tools:context=".SaveAsActivity">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Save as"
-        android:textAlignment="center"
-        android:textSize="30sp"
-        android:layout_marginBottom="30sp"/>
-<androidx.recyclerview.widget.RecyclerView
-    android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:padding="10dp"
-    android:layout_marginBottom="20dp"
-    android:background="@color/white"
-    android:id="@+id/saveAsRecyclerView"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25sp"
-        android:hint="name"
-        android:inputType="textPersonName"
-        android:layout_marginBottom="50dp"
-        android:id="@+id/saveAsName"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:id="@+id/saveAsOkBTN"
-            android:text="OK"/>
+        android:background="#505050"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/saveAaDelBTN"
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_marginRight="30dp"
-            android:layout_weight="1"
-            android:text="Delete" />
+            android:layout_marginBottom="30sp"
+            android:text="Playlist"
+            android:textAlignment="center"
+            android:textSize="30sp" />
 
-        <Button
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/saveAsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="20dp"
+            android:padding="10dp" >
+
+
+
+        </androidx.recyclerview.widget.RecyclerView>
+        <EditText
+        android:id="@+id/saveAsName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:hint="name"
+        android:inputType="textPersonName"
+        android:textSize="25sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="30dp"
-            android:id="@+id/saveAsCancelBTN"
-            android:text="Cancel"/>
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/saveAsOkBTN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:text="OK" />
+
+            <Button
+                android:id="@+id/saveAaDelBTN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/saveAsCancelBTN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="30dp"
+                android:text="Cancel" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

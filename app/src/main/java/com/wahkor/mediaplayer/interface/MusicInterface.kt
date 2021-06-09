@@ -15,7 +15,7 @@ interface MusicInterface {
                         mp.create(song,context)
                         mp.action(action,context)
                     }else{
-                        mp.action("play",context)
+                        mp.action(action,context)
                     }
         }else{
             nextClick()
