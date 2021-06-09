@@ -39,11 +39,15 @@ interface MenuInterface {
                     callback(intent)
                 }
                 "Open playlist"->{
-                    Toast.makeText(context,"${it.title}",Toast.LENGTH_LONG).show()
+                    val intent=Intent(context,SaveAsActivity::class.java)
+                    intent.putExtra("tableName",tableName)
+                    intent.putExtra("saveAsMode","open")
+                    callback(intent)
                 }
                 "Save playlist as" -> {
                     val intent=Intent(context,SaveAsActivity::class.java)
                     intent.putExtra("tableName",tableName)
+                    intent.putExtra("saveAsMode","save")
                     callback(intent)
                 }
             }

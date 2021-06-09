@@ -73,9 +73,20 @@ class PlayListDB(context: Context):SQLiteOpenHelper(context,DATABASE_NAME,null,D
         }
         db.close()
     }
+
+    fun createTable(tableName: String, list: ArrayList<Song>) {
+        val db=this.writableDatabase
+        try {
+            db.execSQL("create table $tableName ($dataSet)")
+        }catch (e:Exception){}
+        db.close()
+        setData(tableName,list)
+
+    }
+
     val getName:ArrayList<String>
     get() {
-        val list:MutableList<String> =ArrayList<String>()
+        val list:MutableList<String> =ArrayList()
         val db=this.writableDatabase
         val cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null)
         if (cursor != null){
@@ -90,7 +101,8 @@ class PlayListDB(context: Context):SQLiteOpenHelper(context,DATABASE_NAME,null,D
         val myList=ArrayList<String>()
         for (i in 0 until list.size){
             if(list[i].substringBefore("_")=="playlist"){
-                myList.add(list[i].substringAfter("-"))
+                val name=list[i].substringAfter("_")
+                myList.add(name)
                 }
         }
 

@@ -1,7 +1,6 @@
 package com.wahkor.mediaplayer
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.View
@@ -17,6 +16,7 @@ import com.wahkor.mediaplayer.`interface`.MusicInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.database.PlayListDB
+import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlayerBinding
 import com.wahkor.mediaplayer.model.Song
 import java.io.File
@@ -26,7 +26,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
 
     private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
-    private val tableName = "playlist_current"
+    private lateinit var tableName :String
     private var handles = Handler()
     private lateinit var adapter: PlaylistAdapter
     private lateinit var songList: MutableList<Song>
@@ -99,10 +99,17 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
     }
 
     private fun initial() {
-        songList = db.getData(tableName)
-        if (songList.size == 0) {
+        val statusDb=PlaylistStatusDb(this)
+        val statusName=statusDb.getTableName
+        if (statusName == null){
             songList = db.getData("allSong")
+            db.createTable("playlist_default",songList as ArrayList<Song>)
+            tableName="playlist_default"
+            statusDb.setTableName(tableName)
+        }else{
+            tableName=statusName
         }
+        songList=db.getData(tableName)
         // check if file Exists
         val newList = ArrayList<Song>()
         for (i in 0 until songList.size) {
@@ -138,7 +145,7 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
             if (mp.complete){
                 nextClick()
             }
-            binding.playlistName.text=tableName
+            "${tableName.substringAfter("_")} playlist".also { binding.playlistName.text = it }
             binding.Title.text = mp.title
             binding.Seekbar.max = mp.duration
             binding.tvDue.text = mp.dueString
@@ -163,20 +170,6 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 12345 && resultCode == RESULT_OK && data != null) {
-            if (data.data != null) {
-                toast("single file")
-
-            } else if (data.clipData != null) {
-                for (i in 0 until data.clipData!!.itemCount) {
-
-                    val song = data.clipData!!.getItemAt(i).uri
-                }
-            }
-        }
-    }
 
     override fun nextClick() {
         var position = 0
