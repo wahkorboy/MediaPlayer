@@ -84,6 +84,15 @@ class PlayListDB(context: Context):SQLiteOpenHelper(context,DATABASE_NAME,null,D
 
     }
 
+    fun deleteTable(tableName: String):ArrayList<String> {
+        val db=this.writableDatabase
+        try {
+            db.execSQL("drop table if exists $tableName")
+            db.close()
+        }catch (e:Exception){}
+        return getName
+    }
+
     val getName:ArrayList<String>
     get() {
         val list:MutableList<String> =ArrayList()

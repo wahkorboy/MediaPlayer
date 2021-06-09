@@ -19,6 +19,7 @@ import com.wahkor.mediaplayer.databinding.ActivitySaveAsBinding
 class SaveAsActivity : AppCompatActivity() {
     private lateinit var adapter: SaveAsRecyclerAdapter
     private lateinit var db: PlayListDB
+    private lateinit var statusDb: PlaylistStatusDb
     private var myList = ArrayList<MyList>()
     private var tableNameList = ArrayList<String>()
     private var openTable=""
@@ -29,6 +30,7 @@ class SaveAsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        statusDb=PlaylistStatusDb(this)
         backIntent = Intent(this, PlayerActivity::class.java)
         setContentView(binding.root)
         db = PlayListDB(this)
@@ -54,11 +56,28 @@ class SaveAsActivity : AppCompatActivity() {
                 "open" -> setTable()
             }
         }
+        binding.saveAaDelBTN.setOnClickListener {
+            deleteClick()
+        }
         binding.saveAsCancelBTN.setOnClickListener { onBackPressed() }
     }
 
+    private fun deleteClick() {
+        confirmDialog("Are you sure you want to Delete $openTable playlist"){confirm ->
+            if(confirm){
+                val tableName="playlist_$openTable"
+                tableNameList=db.deleteTable(tableName)
+                myList.clear()
+                for(i in 0 until tableNameList.size){
+                    myList.add(MyList(false,tableNameList[i]))
+                }
+                statusDb.setTableName("playlist_default")
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
     private fun setTable() {
-        val statusDb=PlaylistStatusDb(this)
         if(tableNameList.contains(openTable)){
             statusDb.setTableName("playlist_$openTable")
             startActivity(backIntent)
@@ -74,7 +93,7 @@ class SaveAsActivity : AppCompatActivity() {
         } else {
             if (tableNameList.contains(name)) {
                 //alert for confirmation
-                confirmDialog(name) { confirm ->
+                confirmDialog("Are you sure You want ot override $name playlist") { confirm ->
                     if (confirm) {
                         gotoSave(name)
                     }
@@ -87,7 +106,6 @@ class SaveAsActivity : AppCompatActivity() {
 
     private fun gotoSave(name: String) {
         val tableName="playlist_$name"
-        val statusDb=PlaylistStatusDb(this)
         val currentTable = statusDb.getTableName
             val list = db.getData(currentTable!!)
             if (tableNameList.contains(name)) {
@@ -102,9 +120,9 @@ class SaveAsActivity : AppCompatActivity() {
 
     }
 
-    private fun confirmDialog(name: String, callback: (confirm: Boolean) -> Unit) {
+    private fun confirmDialog(message: String, callback: (confirm: Boolean) -> Unit) {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Are you sure you want to save as $name")
+        builder.setMessage(message)
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
                 run {
@@ -134,9 +152,13 @@ class SaveAsActivity : AppCompatActivity() {
                 text.text = list[adapterPosition].name
                 if (list[adapterPosition].isSelected) {
                     itemView.setBackgroundColor(getColor(itemView.context, R.color.selected_btn))
+                    if(list[adapterPosition].name!="default"){
+                        binding.saveAaDelBTN.visibility=View.VISIBLE
+                    }
 
                 } else {
                     itemView.setBackgroundColor(getColor(itemView.context, R.color.unselected_btn))
+                    binding.saveAaDelBTN.visibility=View.GONE
 
                 }
                 itemView.setOnClickListener {

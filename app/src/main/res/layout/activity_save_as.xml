@@ -40,6 +40,16 @@
             android:layout_marginRight="30dp"
             android:id="@+id/saveAsOkBTN"
             android:text="OK"/>
+
+        <Button
+            android:id="@+id/saveAaDelBTN"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginRight="30dp"
+            android:layout_weight="1"
+            android:text="Delete" />
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
