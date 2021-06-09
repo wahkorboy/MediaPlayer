@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
-import com.wahkor.mediaplayer.databinding.ActivitySaveAsBinding
+import com.wahkor.mediaplayer.databinding.ActivityPlaylistManagerBinding
 
-class SaveAsActivity : AppCompatActivity() {
+class PlayListManagerActivity : AppCompatActivity() {
     private lateinit var adapter: SaveAsRecyclerAdapter
     private lateinit var db: PlayListDB
     private lateinit var statusDb: PlaylistStatusDb
@@ -24,8 +24,8 @@ class SaveAsActivity : AppCompatActivity() {
     private var tableNameList = ArrayList<String>()
     private var openTable=""
     private lateinit var backIntent:Intent
-    private val binding: ActivitySaveAsBinding by lazy {
-        ActivitySaveAsBinding.inflate(layoutInflater)
+    private val binding: ActivityPlaylistManagerBinding by lazy {
+        ActivityPlaylistManagerBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +56,7 @@ class SaveAsActivity : AppCompatActivity() {
                 "open" -> setTable()
             }
         }
-        binding.saveAaDelBTN.setOnClickListener {
+        binding.saveAsDelBTN.setOnClickListener {
             deleteClick()
         }
         binding.saveAsCancelBTN.setOnClickListener { onBackPressed() }
@@ -152,15 +152,12 @@ class SaveAsActivity : AppCompatActivity() {
                 text.text = list[adapterPosition].name
                 if (list[adapterPosition].isSelected) {
                     itemView.setBackgroundColor(getColor(itemView.context, R.color.selected_playlist))
-                    if(list[adapterPosition].name!="default"){
-                        binding.saveAaDelBTN.visibility=View.VISIBLE
-                    }
 
-                    3
+
 
                 } else {
                     itemView.setBackgroundColor(getColor(itemView.context, R.color.unselected_playlist))
-                    binding.saveAaDelBTN.visibility=View.GONE
+
 
                 }
                 itemView.setOnClickListener {
@@ -175,6 +172,11 @@ class SaveAsActivity : AppCompatActivity() {
                     }else{
                         ""
                     }
+                    binding.saveAsDelBTN.visibility=View.GONE
+                    if(openTable != "default" && openTable != ""){
+                        binding.saveAsDelBTN.visibility=View.VISIBLE
+                    }
+
                     notifyDataSetChanged()
 
                 }

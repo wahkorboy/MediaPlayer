@@ -6,7 +6,7 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import com.wahkor.mediaplayer.AddSongToPlaylistActivity
 import com.wahkor.mediaplayer.R
-import com.wahkor.mediaplayer.SaveAsActivity
+import com.wahkor.mediaplayer.PlayListManagerActivity
 import com.wahkor.mediaplayer.SleepTimeActivity
 
 interface MenuInterface {
@@ -39,13 +39,13 @@ interface MenuInterface {
                     callback(intent)
                 }
                 "Open playlist"->{
-                    val intent=Intent(context,SaveAsActivity::class.java)
+                    val intent=Intent(context,PlayListManagerActivity::class.java)
                     intent.putExtra("tableName",tableName)
                     intent.putExtra("saveAsMode","open")
                     callback(intent)
                 }
                 "Save playlist as" -> {
-                    val intent=Intent(context,SaveAsActivity::class.java)
+                    val intent=Intent(context,PlayListManagerActivity::class.java)
                     intent.putExtra("tableName",tableName)
                     intent.putExtra("saveAsMode","save")
                     callback(intent)
