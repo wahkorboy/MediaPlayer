@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.KeyEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.result.ActivityResult
@@ -24,7 +25,9 @@ import java.io.File
 
 
 class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
-
+    private val delayClick:Long=500
+    private var lastClick:Long=0
+    private var currentClick:Long=0
     private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
     private lateinit var tableName :String
@@ -214,5 +217,20 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
         }
 
     }
-
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_HEADSETHOOK -> {
+                lastClick=currentClick
+                currentClick=System.currentTimeMillis()
+                if(lastClick+delayClick>currentClick){
+                    binding.Next.callOnClick()
+                }else{
+                    binding.Play.callOnClick()
+                }
+                return true
+            }
+        }
+        //toast("$keyCode ${KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE}");
+        return super.onKeyDown(keyCode, event)
+    }
 }

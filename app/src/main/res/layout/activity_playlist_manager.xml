@@ -47,13 +47,12 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
-
             <Button
-                android:id="@+id/saveAsOkBTN"
+                android:id="@+id/saveAsCancelBTN"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="30dp"
-                android:text="OK" />
+                android:text="@string/cancelBTN" />
 
             <Button
                 android:id="@+id/saveAsDelBTN"
@@ -61,15 +60,15 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="30dp"
                 android:layout_weight="1"
-                android:text="Delete"
+                android:text="@string/deleteBtn"
                 android:visibility="gone" />
 
+
             <Button
-                android:id="@+id/saveAsCancelBTN"
+                android:id="@+id/saveAsOkBTN"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="30dp"
-                android:text="Cancel" />
+                android:text="@string/submitBTN" />
         </LinearLayout>
     </LinearLayout>
 
