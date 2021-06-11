@@ -8,12 +8,35 @@ import android.widget.Toast
 import com.wahkor.mediaplayer.MusicPlayer
 
 class AudioReceiver:BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
-        Toast.makeText(context,"test receive",Toast.LENGTH_SHORT).show()
-        Log.e("test","test")
-        if (intent?.action.equals(Intent.ACTION_MEDIA_BUTTON)) {
+    companion object{
+        private lateinit var mp:MusicPlayer
+        private var singleClick=false
+        private var doubleClick=false
+        private var lastClick=0L
+        private var currentClick=0L
+        private const val delayClick=300L
 
+    }
+    override fun onReceive(context: Context?, intent: Intent?) {
+        mp=MusicPlayer()
+        if (intent?.action.equals(Intent.ACTION_MEDIA_BUTTON)) {
+            lastClick=currentClick
+            currentClick=System.currentTimeMillis()
+            if (currentClick-delayClick<lastClick){
+                doubleClick=true
+                singleClick=false
+            }else{
+                doubleClick=false
+                singleClick=true
+
+            }
         }
+    }
+    val singleHook:Boolean get() = singleClick
+    val doubleHook:Boolean get() = doubleClick
+    fun resetHook(){
+        singleClick=false
+        doubleClick=false
     }
 
 

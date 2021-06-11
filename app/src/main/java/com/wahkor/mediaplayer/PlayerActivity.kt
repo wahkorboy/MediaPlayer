@@ -1,6 +1,9 @@
 package com.wahkor.mediaplayer
 
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
+import android.media.AudioManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,13 +24,11 @@ import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlayerBinding
 import com.wahkor.mediaplayer.model.Song
+import com.wahkor.mediaplayer.receiver.AudioReceiver
 import java.io.File
 
 
 class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
-    private val delayClick:Long=500
-    private var lastClick:Long=0
-    private var currentClick:Long=0
     private val mp = MusicPlayer()
     private lateinit var runnable: Runnable
     private lateinit var tableName :String
@@ -41,6 +42,9 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        val mAudioManager = getSystemService (Context.AUDIO_SERVICE) as AudioManager
+        val mReceiverComponent = ComponentName( this, AudioReceiver::class.java)
+        mAudioManager.registerMediaButtonEventReceiver(mReceiverComponent);
         db = PlayListDB(this)
         initial()
         adapter = PlaylistAdapter(songList) { newList, Action ->
@@ -139,7 +143,19 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
     }
 
     private fun setRunnable() {
+        val receiver=AudioReceiver()
+
         runnable = Runnable {
+            if (receiver.singleHook){
+                    binding.Play.callOnClick()
+                    receiver.resetHook()
+
+            }
+            if (receiver.doubleHook){
+                    binding.Next.callOnClick()
+                    receiver.resetHook()
+
+            }
             binding.Play.setImageDrawable(
                 if (mp.isPlaying)
                     ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_pause, null)
@@ -216,21 +232,5 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
             }
         }
 
-    }
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        when (keyCode) {
-            KeyEvent.KEYCODE_HEADSETHOOK -> {
-                lastClick=currentClick
-                currentClick=System.currentTimeMillis()
-                if(lastClick+delayClick>currentClick){
-                    binding.Next.callOnClick()
-                }else{
-                    binding.Play.callOnClick()
-                }
-                return true
-            }
-        }
-        //toast("$keyCode ${KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE}");
-        return super.onKeyDown(keyCode, event)
     }
 }

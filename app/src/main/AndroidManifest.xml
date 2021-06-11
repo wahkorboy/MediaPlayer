@@ -60,6 +60,7 @@
             android:name=".receiver.SleepTimeReceiver"
             android:enabled="true" />
         <receiver android:name=".receiver.AudioReceiver"
+            android:exported="true"
             android:enabled="true">
             <intent-filter >
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
