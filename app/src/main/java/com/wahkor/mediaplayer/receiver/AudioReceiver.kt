@@ -1,8 +1,10 @@
 package com.wahkor.mediaplayer.receiver
 
+import BackgroundMediaService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.session.MediaSession
 import android.util.Log
 import android.widget.Toast
 import com.wahkor.mediaplayer.MusicPlayer
@@ -31,6 +33,10 @@ class AudioReceiver:BroadcastReceiver() {
 
             }
         }
+
+    }
+    fun handleIntent(mediaSession:MediaSession?, intent:Intent?){
+
     }
     val singleHook:Boolean get() = singleClick
     val doubleHook:Boolean get() = doubleClick
