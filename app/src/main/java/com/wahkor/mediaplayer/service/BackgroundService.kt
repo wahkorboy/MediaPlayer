@@ -97,5 +97,13 @@ class BackgroundService: Service() {
         currentSong=song
 
     }
+
+    fun seekTo(progress: Int) {
+        mediaPlayer.seekTo(progress)
+    }
+
+    fun pause() =mediaPlayer.pause()
     val title:String get() = currentSong.title
+    val duration:Int get() = mediaPlayer.duration
+    val currentPosition:Int get() = mediaPlayer.currentPosition
 }
