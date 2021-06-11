@@ -12,7 +12,7 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
-        <activity android:name=".TestAudioMainActivity2"></activity>
+        <activity android:name=".EmptyActivity"></activity>
         <activity android:name=".PlayListManagerActivity" />
         <activity android:name=".AddSongToPlaylistActivity" />
         <activity android:name=".TestMainActivity" />
@@ -80,6 +80,7 @@
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+        <service android:name=".service.BackgroundService" />
     </application>
 
 </manifest>

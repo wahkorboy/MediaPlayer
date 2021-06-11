@@ -16,7 +16,11 @@ class MusicPlayer {
         private var isReady = false
         private var current = Song("random", "", "", 0, false, "")
     }
-
+fun initMedia(context: Context){
+    mp= MediaPlayer.create(context,R.raw.abandonedluna)
+    mp.start()
+    isReady=true
+}
     fun create(song: Song, context: Context): Boolean {
         current = song
         mp.reset()

@@ -4,6 +4,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity() {
             setAlarm(sleep)
         }
 
-        val intent= Intent(this,TestAudioMainActivity2::class.java)
+        val intent= Intent(this,EmptyActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
           startActivity(intent)
     }
