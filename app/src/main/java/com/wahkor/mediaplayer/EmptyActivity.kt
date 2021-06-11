@@ -66,6 +66,7 @@ class EmptyActivity : AppCompatActivity() {
 
         })
     }
+
     private fun setRunnable(){
         runnable= Runnable {
                 titleView.text=mp.title
