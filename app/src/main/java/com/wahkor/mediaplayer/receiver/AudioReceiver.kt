@@ -13,8 +13,6 @@ import com.wahkor.mediaplayer.service.BackgroundService
 class AudioReceiver:BroadcastReceiver() {
     companion object{
         private lateinit var mp:BackgroundService
-        private var singleClick=false
-        private var doubleClick=false
         private var lastClick=0L
         private var currentClick=0L
         private const val delayClick=300L
@@ -28,8 +26,6 @@ class AudioReceiver:BroadcastReceiver() {
                 lastClick=currentClick
                 currentClick=System.currentTimeMillis()
                 if (currentClick<delayClick+lastClick){
-                    doubleClick=true
-                    singleClick=false
                     mp.nextPlay()
                 }else{
                     if (mp.isPlaying()){
@@ -37,8 +33,6 @@ class AudioReceiver:BroadcastReceiver() {
                     }else{
                         mp.start()
                     }
-                    doubleClick=false
-                    singleClick=true
 
                 }
             }
@@ -48,12 +42,6 @@ class AudioReceiver:BroadcastReceiver() {
     }
     fun toast(context: Context?,message:String){
         Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
-    }
-    val singleHook:Boolean get() = singleClick
-    val doubleHook:Boolean get() = doubleClick
-    fun resetHook(){
-        singleClick=false
-        doubleClick=false
     }
 
 

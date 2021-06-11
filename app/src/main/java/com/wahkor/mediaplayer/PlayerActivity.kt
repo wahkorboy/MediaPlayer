@@ -146,16 +146,6 @@ class PlayerActivity : AppCompatActivity(), MenuInterface, MusicInterface {
         val receiver=AudioReceiver()
 
         runnable = Runnable {
-            if (receiver.singleHook){
-                    binding.Play.callOnClick()
-                    receiver.resetHook()
-
-            }
-            if (receiver.doubleHook){
-                    binding.Next.callOnClick()
-                    receiver.resetHook()
-
-            }
             binding.Play.setImageDrawable(
                 if (mp.isPlaying)
                     ResourcesCompat.getDrawable(resources, R.drawable.ic_baseline_pause, null)
