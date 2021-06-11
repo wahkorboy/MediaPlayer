@@ -12,6 +12,7 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
+        <activity android:name=".TestAudioMainActivity2"></activity>
         <activity android:name=".PlayListManagerActivity" />
         <activity android:name=".AddSongToPlaylistActivity" />
         <activity android:name=".TestMainActivity" />
@@ -59,16 +60,18 @@
         <receiver
             android:name=".receiver.SleepTimeReceiver"
             android:enabled="true" />
-        <receiver android:name=".receiver.AudioReceiver"
-            android:exported="true"
-            android:enabled="true">
-            <intent-filter >
+        <receiver
+            android:name=".receiver.AudioReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.BackgroundMediaService"
+        <service
+            android:name=".service.BackgroundMediaService"
             android:exported="false"
             android:permission="TODO">
             <intent-filter>

@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
             setAlarm(sleep)
         }
 
-        val intent= Intent(this,PlayerActivity::class.java)
+        val intent= Intent(this,TestAudioMainActivity2::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
           startActivity(intent)
     }
