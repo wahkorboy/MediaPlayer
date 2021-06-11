@@ -1,6 +1,5 @@
 package com.wahkor.mediaplayer.receiver
 
-import BackgroundMediaService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
