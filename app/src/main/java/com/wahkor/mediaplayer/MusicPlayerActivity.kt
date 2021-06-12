@@ -31,16 +31,16 @@ class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
     private var mp=BackgroundAudioService()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_empty)
+        setContentView(R.layout.activity_music_player)
         songQuery=mp.getSongQuery
-        menuImageView=findViewById(R.id.empty_menu)
-        titleView=findViewById(R.id.empty_Title)
-        seekBar=findViewById(R.id.empty_Seekbar)
-        prevBTN=findViewById(R.id.empty_Prev)
-        playBTN=findViewById(R.id.empty_Play)
-        nextBTN=findViewById(R.id.empty_Next)
-        playlistName=findViewById(R.id.empty_playlistName)
-        recyclerView=findViewById(R.id.empty_ListView)
+        menuImageView=findViewById(R.id.music_player_menu)
+        titleView=findViewById(R.id.music_player_Title)
+        seekBar=findViewById(R.id.music_player_Seekbar)
+        prevBTN=findViewById(R.id.music_player_Prev)
+        playBTN=findViewById(R.id.music_player_Play)
+        nextBTN=findViewById(R.id.music_player_Next)
+        playlistName=findViewById(R.id.music_player_playlistName)
+        recyclerView=findViewById(R.id.music_player_ListView)
         prevBTN.setOnClickListener { mp.prevPlay() }
         playBTN.setOnClickListener {
             if(mp.isPlaying()){

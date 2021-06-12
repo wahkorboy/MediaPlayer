@@ -40,7 +40,7 @@ class AddSongToPlaylistActivity : AppCompatActivity() {
             allSongs[i].is_playing=false
             adapterList.add(SelectedSong(false,allSongs[i]))
         }
-        adapter = AddSongToPlaylistAdapter(this,adapterList) { newList ->
+        adapter = AddSongToPlaylistAdapter(adapterList) { newList ->
             selectedList=ArrayList()
             for(i in 0 until newList.size){
                 if (newList[i].isSelected)
