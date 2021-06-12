@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
         val sleepDb=SleepDb(this)
         val sleep=sleepDb.getSleep
         if (sleep.isRepeat){
-            sleep.id=Random.nextInt(1,9999999)
+            sleep.repeatTimeId=Random.nextLong(1,9999999)
             //update DB and broadcast receiver sleep.id
             sleepDb.setSleep(sleep)
             setAlarm(sleep)
@@ -129,8 +129,8 @@ class MainActivity : AppCompatActivity() {
       //  findViewById<TextView>(R.id.mainTextView).text=sleep.id.toString()
         val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, SleepTimeReceiver::class.java)
-        intent.putExtra("notificationID", "${sleep.id}")
-        intent.putExtra("notificationNAME", "SleepTime")
+        intent.putExtra("notificationID", "${sleep.repeatTimeId}")
+        intent.putExtra("notificationNAME", "SleepTime repeat")
         val pendingIntent =
             PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.getRepeatTimeDelay, pendingIntent)
