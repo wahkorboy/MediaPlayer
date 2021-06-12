@@ -17,6 +17,7 @@ import com.wahkor.mediaplayer.service.BackgroundAudioService
 
 class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
     private lateinit var menuImageView: ImageView
+    private lateinit var settingImageView: ImageView
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
     private lateinit var prevBTN: ImageView
@@ -34,6 +35,7 @@ class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
         setContentView(R.layout.activity_music_player)
         songQuery=mp.getSongQuery
         menuImageView=findViewById(R.id.music_player_menu)
+        settingImageView=findViewById(R.id.music_player_setting)
         titleView=findViewById(R.id.music_player_Title)
         seekBar=findViewById(R.id.music_player_Seekbar)
         prevBTN=findViewById(R.id.music_player_Prev)
@@ -67,6 +69,11 @@ class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
         menuImageView.setOnClickListener {
             setOnMenuClick(this, PopupMenu(this,it as ImageView),mp.getTableName!!){intent ->
             startActivity(intent)
+            }
+        }
+        settingImageView.setOnClickListener {
+            setOnMenuClick(this, PopupMenu(this, it as ImageView), mp.getTableName!!) { intent ->
+                startActivity(intent)
             }
         }
         adapter= PlaylistAdapter(songQuery){ newList, action ->
