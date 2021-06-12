@@ -3,8 +3,10 @@ package com.wahkor.mediaplayer.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat.getColor
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.`interface`.CustomItemTouchHelperListener
@@ -17,7 +19,7 @@ class PlaylistAdapter(
     var callback: ( newList: MutableList<Song>,action:String) -> Unit
 ) :
     RecyclerView.Adapter<PlaylistAdapter.ViewHolder>(), CustomItemTouchHelperListener {
-    val list = myList as MutableList<Song>
+    val list = myList
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val title: TextView = itemView.findViewById(R.id.playlistTitle)

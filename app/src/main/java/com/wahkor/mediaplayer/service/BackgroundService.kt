@@ -20,6 +20,7 @@ class BackgroundService: Service() {
         private var songQuery=ArrayList<Song>()
         private var tableName:String?=null
         private lateinit var currentSong:Song
+        private var update=false
     }
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Not yet implemented")
@@ -31,9 +32,7 @@ class BackgroundService: Service() {
         tableName= statusDb.getTableName
         if (tableName != null) {
             songQuery=db.getData(tableName!!)
-            toast(this,"load from status")
         }else{
-            toast(this,"load from all song")
             tableName="playlist_default"
             songQuery=db.getData("allSong")
             db.createTable(tableName!!, songQuery)
@@ -95,6 +94,7 @@ class BackgroundService: Service() {
         mediaPlayer.prepare()
         db.setData(tableName!!, songQuery)
         currentSong=song
+        update=true
 
     }
 
@@ -103,7 +103,39 @@ class BackgroundService: Service() {
     }
 
     fun pause() =mediaPlayer.pause()
+    fun clearUpdate() {
+        update=false
+    }
+
+    fun playlistAction(newList: MutableList<Song>):Boolean{
+        songQuery=newList as ArrayList<Song>
+        var position=0
+        for(i in 0 until songQuery.size){
+            if(songQuery[i].is_playing){
+                position=i
+            }
+            songQuery[i].is_playing=false
+        }
+        return if(songQuery.size>0){
+            songQuery[position].is_playing=true
+            setupPlayer(songQuery[position])
+            true
+        }else{
+            false
+        }
+    }
+
+    fun playlistMoved(newList: MutableList<Song>) {
+        songQuery=newList as ArrayList<Song>
+        tableName?.let {
+            db.setData(it, songQuery)
+        }
+
+    }
+
+    val isUpdate: Boolean get() = update
     val title:String get() = currentSong.title
     val duration:Int get() = mediaPlayer.duration
     val currentPosition:Int get() = mediaPlayer.currentPosition
+    val getSongQuery get() = songQuery
 }
