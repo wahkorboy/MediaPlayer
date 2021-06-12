@@ -12,4 +12,5 @@
     <string name="deleteBtn">Delete</string>
     <string name="cancelBTN">Cancel</string>
     <string name="submitBTN">OK</string>
+    <string name="SleepTimeTitle">Sleep Time</string>
 </resources>

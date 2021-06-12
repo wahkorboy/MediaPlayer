@@ -3,12 +3,17 @@ package com.wahkor.mediaplayer.model
 import com.wahkor.mediaplayer.time.TimeManager
 
 data class Sleep(
-    var id: Int,
-    var isRepeat: Boolean = false,
-    var delayTime: Int = 0,
-    var sleepTime: Int = 0,
-    var wakeupTime: Int = 0
+    var oneTimeId:Long,
+    var repeatTimeId:Long,
+    var isRepeat: Boolean,
+    var delayTime: Int ,
+    var sleepTime: Int ,
+    var wakeupTime: Int
 ) {
+    fun getOneTimeDelay(minutes: Int): Long {
+        return System.currentTimeMillis()+(minutes*60*1000)
+    }
+
     private val tm = TimeManager()
     val sleepToString: String
         get() {
@@ -26,7 +31,6 @@ data class Sleep(
             string += if (minute < 10) "0$minute" else "$minute"
             return string
         }
-    val getOneTimeDelay: Long get() = System.currentTimeMillis() + (delayTime * 60 * 1000).toLong()
     val getRepeatTimeDelay: Long
         get() {
             var sleepWithIn = 0

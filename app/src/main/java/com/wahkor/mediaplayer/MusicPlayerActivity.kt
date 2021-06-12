@@ -72,7 +72,7 @@ class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
             }
         }
         settingImageView.setOnClickListener {
-            setOnMenuClick(this, PopupMenu(this, it as ImageView), mp.getTableName!!) { intent ->
+            setOnSettingClick(this, PopupMenu(this, it as ImageView)) { intent ->
                 startActivity(intent)
             }
         }
