@@ -15,7 +15,6 @@
         <activity android:name=".EmptyActivity" />
         <activity android:name=".PlayListManagerActivity" />
         <activity android:name=".AddSongToPlaylistActivity" />
-        <activity android:name=".TestMainActivity" />
         <activity android:name=".SleepTimeActivity" />
         <activity android:name=".PlayMusicByFileActivity">
             <intent-filter>
@@ -54,16 +53,6 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name=".service.BackgroundMediaService"
-            android:exported="false"
-            android:permission="TODO">
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
         <service android:name=".service.BackgroundService" />
     </application>
 

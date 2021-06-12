@@ -28,7 +28,6 @@ class AudioReceiver : BroadcastReceiver() {
                 event?.let {
                     val action = it.action
                     if (action == KeyEvent.ACTION_DOWN) {
-                        toast(context,"${++time}")
                         lastClick = currentClick
                         currentClick = System.currentTimeMillis()
                         if (currentClick < delayClick + lastClick) {
