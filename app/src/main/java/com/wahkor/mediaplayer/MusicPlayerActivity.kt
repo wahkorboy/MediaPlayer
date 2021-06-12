@@ -1,16 +1,9 @@
 package com.wahkor.mediaplayer
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.media.AudioManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -20,10 +13,9 @@ import com.wahkor.mediaplayer.`interface`.MenuInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.model.Song
-import com.wahkor.mediaplayer.receiver.AudioReceiver
-import com.wahkor.mediaplayer.service.BackgroundService
+import com.wahkor.mediaplayer.service.BackgroundAudioService
 
-class EmptyActivity : AppCompatActivity(),MenuInterface {
+class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
     private lateinit var menuImageView: ImageView
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
@@ -36,7 +28,7 @@ class EmptyActivity : AppCompatActivity(),MenuInterface {
     private var songQuery=ArrayList<Song>()
     private var handler=Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
-    private var mp=BackgroundService()
+    private var mp=BackgroundAudioService()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_empty)

@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlaylistManagerBinding
-import com.wahkor.mediaplayer.service.BackgroundService
+import com.wahkor.mediaplayer.service.BackgroundAudioService
 
 class PlayListManagerActivity : AppCompatActivity() {
     private lateinit var adapter: SaveAsRecyclerAdapter
@@ -25,7 +25,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     private var tableNameList = ArrayList<String>()
     private var openTable=""
     private lateinit var backIntent:Intent
-    private val mp=BackgroundService()
+    private val mp=BackgroundAudioService()
     private val binding: ActivityPlaylistManagerBinding by lazy {
         ActivityPlaylistManagerBinding.inflate(layoutInflater)
     }
@@ -33,7 +33,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         statusDb=PlaylistStatusDb(this)
-        backIntent = Intent(this, EmptyActivity::class.java)
+        backIntent = Intent(this, MusicPlayerActivity::class.java)
         setContentView(binding.root)
         db = PlayListDB(this)
         tableNameList = db.getName
@@ -141,7 +141,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val intent = Intent(this, EmptyActivity::class.java)
+        val intent = Intent(this, MusicPlayerActivity::class.java)
         setResult(Activity.RESULT_CANCELED, intent)
         finish()
     }

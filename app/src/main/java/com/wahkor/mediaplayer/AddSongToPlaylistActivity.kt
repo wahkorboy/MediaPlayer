@@ -62,7 +62,7 @@ class AddSongToPlaylistActivity : AppCompatActivity() {
                     playlist.add(selectedList[i])
                 }
                 db.setData(tableName,playlist)
-                val intent= Intent(this,EmptyActivity::class.java)
+                val intent= Intent(this,MusicPlayerActivity::class.java)
                 startActivity(intent)
             }else{
                 onBackPressed()

@@ -3,17 +3,13 @@ package com.wahkor.mediaplayer.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
-import android.media.session.MediaSession
-import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
-import com.wahkor.mediaplayer.MusicPlayer
-import com.wahkor.mediaplayer.service.BackgroundService
+import com.wahkor.mediaplayer.service.BackgroundAudioService
 
 class AudioReceiver : BroadcastReceiver() {
     companion object {
-        private lateinit var mp: BackgroundService
+        private lateinit var mp: BackgroundAudioService
         private var lastClick = 0L
         private var currentClick = 0L
         private const val delayClick = 100L
@@ -22,7 +18,7 @@ class AudioReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        mp = BackgroundService()
+        mp = BackgroundAudioService()
             if (intent?.action.equals(Intent.ACTION_MEDIA_BUTTON)) {
                 val event = intent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
                 event?.let {

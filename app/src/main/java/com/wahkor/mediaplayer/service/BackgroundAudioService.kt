@@ -12,7 +12,7 @@ import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.model.Song
 
-class BackgroundService: Service() {
+class BackgroundAudioService: Service() {
     companion object{
         private lateinit var db:PlayListDB
         private lateinit var statusDb: PlaylistStatusDb

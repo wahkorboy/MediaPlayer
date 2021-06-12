@@ -12,7 +12,7 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
-        <activity android:name=".EmptyActivity" />
+        <activity android:name=".MusicPlayerActivity" />
         <activity android:name=".PlayListManagerActivity" />
         <activity android:name=".AddSongToPlaylistActivity" />
         <activity android:name=".SleepTimeActivity" />
@@ -53,7 +53,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".service.BackgroundService" />
+        <service android:name=".service.BackgroundAudioService" />
     </application>
 
 </manifest>

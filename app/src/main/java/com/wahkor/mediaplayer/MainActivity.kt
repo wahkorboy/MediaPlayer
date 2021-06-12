@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
@@ -18,7 +17,7 @@ import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
 import com.wahkor.mediaplayer.receiver.AudioReceiver
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
-import com.wahkor.mediaplayer.service.BackgroundService
+import com.wahkor.mediaplayer.service.BackgroundAudioService
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
@@ -114,14 +113,14 @@ class MainActivity : AppCompatActivity() {
         }
         // setup background music
 
-        val mpService= Intent(this, BackgroundService::class.java)
+        val mpService= Intent(this, BackgroundAudioService::class.java)
         startService(mpService)
 
         val mAudioManager = getSystemService (Context.AUDIO_SERVICE) as AudioManager
         val mReceiverComponent = ComponentName( this, AudioReceiver::class.java)
         mAudioManager.registerMediaButtonEventReceiver(mReceiverComponent);
 
-        val intent= Intent(this,EmptyActivity::class.java)
+        val intent= Intent(this,MusicPlayerActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
           startActivity(intent)
     }
