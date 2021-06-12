@@ -11,22 +11,20 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.SeekBar
-import android.widget.TextView
+import android.widget.*
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.wahkor.mediaplayer.`interface`.MenuInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.model.Song
 import com.wahkor.mediaplayer.receiver.AudioReceiver
 import com.wahkor.mediaplayer.service.BackgroundService
 
-class EmptyActivity : AppCompatActivity() {
-
+class EmptyActivity : AppCompatActivity(),MenuInterface {
+    private lateinit var menuImageView: ImageView
     private lateinit var titleView: TextView
     private lateinit var seekBar: SeekBar
     private lateinit var prevBTN: ImageView
@@ -34,6 +32,7 @@ class EmptyActivity : AppCompatActivity() {
     private lateinit var nextBTN:ImageView
     private lateinit var recyclerView:RecyclerView
     private lateinit var adapter:PlaylistAdapter
+    private lateinit var playlistName:TextView
     private var songQuery=ArrayList<Song>()
     private var handler=Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
@@ -42,11 +41,13 @@ class EmptyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_empty)
         songQuery=mp.getSongQuery
+        menuImageView=findViewById(R.id.empty_menu)
         titleView=findViewById(R.id.empty_Title)
         seekBar=findViewById(R.id.empty_Seekbar)
         prevBTN=findViewById(R.id.empty_Prev)
         playBTN=findViewById(R.id.empty_Play)
         nextBTN=findViewById(R.id.empty_Next)
+        playlistName=findViewById(R.id.empty_playlistName)
         recyclerView=findViewById(R.id.empty_ListView)
         prevBTN.setOnClickListener { mp.prevPlay() }
         playBTN.setOnClickListener {
@@ -71,14 +72,18 @@ class EmptyActivity : AppCompatActivity() {
             }
 
         })
+        menuImageView.setOnClickListener {
+            setOnMenuClick(this, PopupMenu(this,it as ImageView),mp.getTableName!!){intent ->
+            startActivity(intent)
+            }
+        }
         adapter= PlaylistAdapter(songQuery){ newList, action ->
-            //toast(action)
             when(action){
-
                 "ItemClicked"->if(mp.playlistAction(newList)){
                     mp.start()
                 }
                 "ItemMoved"->mp.playlistMoved(newList)
+                "ItemRemoved"->mp.playlistRemoved(newList)
             }
         }
         recyclerView.layoutManager=LinearLayoutManager(this)
@@ -94,6 +99,9 @@ class EmptyActivity : AppCompatActivity() {
 
     private fun setRunnable(){
         runnable= Runnable {
+            mp.getTableName?.let {
+                playlistName.text=it
+            }
             if(mp.isUpdate){
                 songQuery=mp.getSongQuery
                 adapter.notifyDataSetChanged()

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlaylistManagerBinding
+import com.wahkor.mediaplayer.service.BackgroundService
 
 class PlayListManagerActivity : AppCompatActivity() {
     private lateinit var adapter: SaveAsRecyclerAdapter
@@ -24,6 +25,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     private var tableNameList = ArrayList<String>()
     private var openTable=""
     private lateinit var backIntent:Intent
+    private val mp=BackgroundService()
     private val binding: ActivityPlaylistManagerBinding by lazy {
         ActivityPlaylistManagerBinding.inflate(layoutInflater)
     }
@@ -31,7 +33,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         statusDb=PlaylistStatusDb(this)
-        backIntent = Intent(this, PlayerActivity::class.java)
+        backIntent = Intent(this, EmptyActivity::class.java)
         setContentView(binding.root)
         db = PlayListDB(this)
         tableNameList = db.getName
@@ -79,7 +81,9 @@ class PlayListManagerActivity : AppCompatActivity() {
 
     private fun setTable() {
         if(tableNameList.contains(openTable)){
-            statusDb.setTableName("playlist_$openTable")
+            val saveTable="playlist_$openTable"
+            statusDb.setTableName(saveTable)
+            mp.changePlaylist(saveTable)
             startActivity(backIntent)
         }else{
             toast("Please Select list")
@@ -114,9 +118,8 @@ class PlayListManagerActivity : AppCompatActivity() {
                 db.createTable(tableName, list)
             }
         statusDb.setTableName(tableName)
-            val intent = Intent(this, PlayerActivity::class.java)
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+        mp.changePlaylist(tableName)
+            startActivity(backIntent)
 
     }
 

@@ -133,6 +133,40 @@ class BackgroundService: Service() {
 
     }
 
+    fun playlistRemoved(newList: MutableList<Song>) {
+        if(tableName !="Playlist_default"){
+            songQuery=newList as ArrayList<Song>
+            tableName?.let { db.setData(it, songQuery) }
+            getSong()?.let { newSong ->
+                if (newSong.data != currentSong.data)
+                    mediaPlayer.stop()
+            }
+        }
+    }
+    fun changePlaylist(saveTable: String) {
+        if (mediaPlayer.isPlaying){
+            mediaPlayer.stop()
+        }
+        tableName=saveTable
+        songQuery=db.getData(tableName!!)
+        getSong()?.let {
+            setupPlayer(it)
+        }
+    }
+    private fun getSong():Song?{
+        var position=0
+        return if (songQuery.size>0){
+            for (i in 0 until songQuery.size){
+                if (songQuery[i].is_playing) position=i
+                songQuery[i].is_playing=false
+            }
+            songQuery[position].is_playing=true
+            songQuery[position]
+
+        }else null
+    }
+
+    val getTableName: String? get() = tableName
     val isUpdate: Boolean get() = update
     val title:String get() = currentSong.title
     val duration:Int get() = mediaPlayer.duration
