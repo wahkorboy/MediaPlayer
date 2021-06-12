@@ -141,7 +141,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        val intent = Intent(this, PlayerActivity::class.java)
+        val intent = Intent(this, EmptyActivity::class.java)
         setResult(Activity.RESULT_CANCELED, intent)
         finish()
     }
