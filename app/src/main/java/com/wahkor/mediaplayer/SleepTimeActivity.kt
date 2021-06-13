@@ -47,7 +47,7 @@ class SleepTimeActivity : AppCompatActivity() {
         view.oneTimeSeekBar.setOnSeekBarChangeListener(object: OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(fromUser){
-                    view.oneTimeTextView.text="$progress Min"
+                    view.oneTimeTextView.text=("$progress Min")
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -106,11 +106,11 @@ class SleepTimeActivity : AppCompatActivity() {
 
 
     private fun setAlarm(minutes:Int,isRepeat:Boolean=false) {
-        var delaytime=sleep.getRealDelay(minutes)
+        var delayTime=sleep.getRealDelay(minutes)
         var id=sleep.oneTimeId
         var name="oneTime"
         if (isRepeat){
-            delaytime=sleep.getRepeatTimeDelay
+            delayTime=sleep.getRepeatTimeDelay
             id=sleep.repeatTimeId
             name="repeatTime"
         }
@@ -120,7 +120,7 @@ class SleepTimeActivity : AppCompatActivity() {
         intent.putExtra("notificationNAME", name)
             val pendingIntent =
                 PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmMGR.setExact(AlarmManager.RTC_WAKEUP,delaytime, pendingIntent)
+            alarmMGR.setExact(AlarmManager.RTC_WAKEUP,delayTime, pendingIntent)
         if(!isRepeat){
             toast("SleepTime in $minutes minutes")
         }
