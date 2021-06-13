@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.widget.SeekBar
 import android.widget.SeekBar.*
 import androidx.annotation.RequiresApi
@@ -20,6 +19,7 @@ import kotlin.random.Random
 class SleepTimeActivity : AppCompatActivity() {
     private lateinit var db: SleepDb
     private lateinit var sleep :Sleep
+    private lateinit var backIntent:Intent
     private val view: ActivitySleepTimeBinding by lazy {
         ActivitySleepTimeBinding.inflate(layoutInflater)
     }
@@ -29,6 +29,7 @@ class SleepTimeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(view.root)
         db = SleepDb(this)
+        backIntent=Intent(this,MusicPlayerActivity::class.java)
         initialTimeSleepDB()
         view.sleepTimeText.setOnClickListener {
             picTime(this, "set BedTime ") { hours, minutes ->
@@ -46,10 +47,22 @@ class SleepTimeActivity : AppCompatActivity() {
         view.oneTimeSeekBar.setOnSeekBarChangeListener(object: OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if(fromUser){
-                    view.oneTimeTextView.text=(" Sleep after $progress minutes").toString()
+                    view.oneTimeTextView.text="$progress Min"
                 }
             }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
 
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+
+        })
+        view.repeatTimeSeekBar.setOnSeekBarChangeListener(object: OnSeekBarChangeListener{
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if(fromUser){
+                    view.repeatTimeTextView.text=("$progress Min")
+                }
+            }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
 
@@ -61,6 +74,13 @@ class SleepTimeActivity : AppCompatActivity() {
             if(view.oneTimeSwitch.isChecked){
                 setAlarm(view.oneTimeSeekBar.progress)
             }
+            sleep.isRepeat=true
+            sleep.delayTime=view.repeatTimeSeekBar.progress
+            db.setSleep(sleep)
+            if(view.repeatSwitch.isChecked){
+                setAlarm(0,true)
+            }
+            startActivity(backIntent)
         }
         view.cancel.setOnClickListener {
             onBackPressed()
@@ -70,8 +90,8 @@ class SleepTimeActivity : AppCompatActivity() {
     private fun initialTimeSleepDB() {
 
         sleep=db.getSleep
-        sleep.repeatTimeId= Random.nextLong(1,999999)
-        sleep.oneTimeId=Random.nextLong(1,999999)
+        sleep.repeatTimeId= Random.nextLong(1,9999999999)
+        sleep.oneTimeId=Random.nextLong(1,9999999999)
         setInitial()
     }
 
@@ -79,19 +99,31 @@ class SleepTimeActivity : AppCompatActivity() {
         view.sleepTimeText.text = sleep.sleepToString
         view.wakeupTimeText.text = sleep.wakeupToString
         view.repeatSwitch.isChecked = sleep.isRepeat
+        view.repeatTimeSeekBar.progress=sleep.delayTime
+        view.repeatTimeTextView.text=("${sleep.delayTime} Min")
     }
 
 
 
-    private fun setAlarm(minutes:Int) {
+    private fun setAlarm(minutes:Int,isRepeat:Boolean=false) {
+        var delaytime=sleep.getRealDelay(minutes)
+        var id=sleep.oneTimeId
+        var name="oneTime"
+        if (isRepeat){
+            delaytime=sleep.getRepeatTimeDelay
+            id=sleep.repeatTimeId
+            name="repeatTime"
+        }
             val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(this, SleepTimeReceiver::class.java)
-        intent.putExtra("notificationID", "${sleep.oneTimeId}")
-        intent.putExtra("notificationNAME", "SleepTime")
+        intent.putExtra("notificationID", id)
+        intent.putExtra("notificationNAME", name)
             val pendingIntent =
                 PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.getOneTimeDelay(minutes), pendingIntent)
-        toast("SleepTime in $minutes minutes")
+            alarmMGR.setExact(AlarmManager.RTC_WAKEUP,delaytime, pendingIntent)
+        if(!isRepeat){
+            toast("SleepTime in $minutes minutes")
+        }
 
     }
 

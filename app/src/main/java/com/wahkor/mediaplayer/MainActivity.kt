@@ -129,8 +129,8 @@ class MainActivity : AppCompatActivity() {
       //  findViewById<TextView>(R.id.mainTextView).text=sleep.id.toString()
         val alarmMGR: AlarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, SleepTimeReceiver::class.java)
-        intent.putExtra("notificationID", "${sleep.repeatTimeId}")
-        intent.putExtra("notificationNAME", "SleepTime repeat")
+        intent.putExtra("notificationID", sleep.repeatTimeId)
+        intent.putExtra("notificationNAME", "repeatTime")
         val pendingIntent =
             PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmMGR.setExact(AlarmManager.RTC_WAKEUP, sleep.getRepeatTimeDelay, pendingIntent)

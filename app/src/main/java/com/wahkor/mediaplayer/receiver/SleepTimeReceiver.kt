@@ -12,14 +12,32 @@ class SleepTimeReceiver:BroadcastReceiver() {
     private val mp=BackgroundAudioService()
     override fun onReceive(context: Context?, intent: Intent?) {
         db= SleepDb(context!!)
-        val receiverID=intent?.getStringExtra("notificationID")
+        val receiverID=intent?.getLongExtra("notificationID",0)
         val receiverNAME=intent?.getStringExtra("notificationNAME")
-        if (receiverNAME != null && receiverNAME=="SleepTime" ){
-            val id=db.getSleep.id
-            if (receiverID==id.toString()){
-                mp.stop()
-                Toast.makeText(context,"Time to Sleep",Toast.LENGTH_LONG).show()
+        receiverNAME?.let { mode ->
+            val sleep=db.getSleep
+            when(mode){
+                "oneTime" -> {
+                    receiverID?.let { receiverID->
+                        if (receiverID==sleep.oneTimeId){
+                            mp.stop()
+                            Toast.makeText(context,"set to Sleep for single Time",Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+                "repeatTime"->{
+                    receiverID.let { receiverID->
+                        if (receiverID==sleep.repeatTimeId){
+                            mp.stop()
+                            Toast.makeText(context,"set to Sleep when it rest time",Toast.LENGTH_LONG).show()
+
+                        }
+                    }
+
+                }
+                else ->{}
             }
+
         }
 
     }

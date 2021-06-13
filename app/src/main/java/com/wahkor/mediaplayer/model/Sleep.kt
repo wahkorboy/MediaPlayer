@@ -10,7 +10,7 @@ data class Sleep(
     var sleepTime: Int ,
     var wakeupTime: Int
 ) {
-    fun getOneTimeDelay(minutes: Int): Long {
+    fun getRealDelay(minutes: Int): Long {
         return System.currentTimeMillis()+(minutes*60*1000)
     }
 
