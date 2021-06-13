@@ -5,14 +5,14 @@ import android.app.Service
 import android.content.*
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.IBinder
-import android.os.Message
 import android.provider.Settings
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.model.Song
-import com.wahkor.mediaplayer.receiver.AudioReceiver
 
 class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
 
@@ -25,10 +25,9 @@ class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
         private var tableName:String?=null
         private lateinit var currentSong:Song
         private var update=false
-        private lateinit var notificationManager:NotificationManager
     }
     override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
+        return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -69,7 +68,6 @@ class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
     fun toast(context: Context,message: String)=Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
     fun isPlaying()= mediaPlayer.isPlaying
     fun start() {
-
            mediaPlayer.start()
 
 

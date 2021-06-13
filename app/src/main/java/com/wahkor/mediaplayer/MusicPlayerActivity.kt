@@ -1,5 +1,7 @@
 package com.wahkor.mediaplayer
 
+import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -13,6 +15,7 @@ import com.wahkor.mediaplayer.`interface`.MenuInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.model.Song
+import com.wahkor.mediaplayer.notification.MusicNotification
 import com.wahkor.mediaplayer.service.AudioService
 
 class MusicPlayerActivity : AppCompatActivity(), MenuInterface {
@@ -129,6 +132,11 @@ class MusicPlayerActivity : AppCompatActivity(), MenuInterface {
             handler.postDelayed(runnable, 1000)
         }
         handler.postDelayed(runnable, 1000)
+    }
+
+    override fun onDestroy() {
+
+        super.onDestroy()
     }
 
 }

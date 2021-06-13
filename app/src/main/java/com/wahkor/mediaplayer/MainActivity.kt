@@ -16,6 +16,7 @@ import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.SleepDb
 import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
+import com.wahkor.mediaplayer.notification.MusicNotification
 import com.wahkor.mediaplayer.receiver.AudioBecomingNoisyReceiver
 import com.wahkor.mediaplayer.receiver.AudioReceiver
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
@@ -119,6 +120,9 @@ class MainActivity : AppCompatActivity() {
         // setup background music
         val mpService= Intent(this, AudioService::class.java)
         startService(mpService)
+
+        val notificationService= Intent(this, MusicNotification::class.java)
+        startService(notificationService)
         registerReceiver(audioBecomingNoisyReceiver,
             IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
         )
