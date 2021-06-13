@@ -1,5 +1,6 @@
 package com.wahkor.mediaplayer.service
 
+import android.app.NotificationManager
 import android.app.Service
 import android.content.*
 import android.media.AudioManager
@@ -24,6 +25,7 @@ class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
         private var tableName:String?=null
         private lateinit var currentSong:Song
         private var update=false
+        private lateinit var notificationManager:NotificationManager
     }
     override fun onBind(intent: Intent?): IBinder? {
         TODO("Not yet implemented")
@@ -191,6 +193,7 @@ class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
         val getTableName: String? get() = tableName
         val isUpdate: Boolean get() = update
         val title:String get() = currentSong.title
+        val artist:String get() = currentSong.artist
         val duration:Int get() = mediaPlayer.duration
         val currentPosition:Int get() = mediaPlayer.currentPosition
         val getSongQuery get() = songQuery
