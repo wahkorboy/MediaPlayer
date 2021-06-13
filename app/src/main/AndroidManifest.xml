@@ -52,8 +52,20 @@
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".receiver.AudioBecomingNoisyReceiver" >
+            <intent-filter>
 
-        <service android:name=".service.BackgroundAudioService" />
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".service.AudioService" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

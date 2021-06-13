@@ -4,6 +4,7 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Bundle
@@ -15,14 +16,17 @@ import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.SleepDb
 import com.wahkor.mediaplayer.model.Sleep
 import com.wahkor.mediaplayer.model.Song
+import com.wahkor.mediaplayer.receiver.AudioBecomingNoisyReceiver
 import com.wahkor.mediaplayer.receiver.AudioReceiver
 import com.wahkor.mediaplayer.receiver.SleepTimeReceiver
-import com.wahkor.mediaplayer.service.BackgroundAudioService
+import com.wahkor.mediaplayer.service.AudioService
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
+    private val audioReceiver=AudioReceiver()
+    private val audioBecomingNoisyReceiver=AudioBecomingNoisyReceiver()
     private lateinit var db:PlayListDB
     private val requestAskCode = 1159
     private val tableName="allSong"
@@ -30,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         db= PlayListDB(this)
+
         // check Permissions
         checkPermissions()
     }
@@ -112,13 +117,13 @@ class MainActivity : AppCompatActivity() {
             setAlarm(sleep)
         }
         // setup background music
-
-        val mpService= Intent(this, BackgroundAudioService::class.java)
+        val mpService= Intent(this, AudioService::class.java)
         startService(mpService)
+        registerReceiver(audioBecomingNoisyReceiver,
+            IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        )
+        registerReceiver(audioReceiver,IntentFilter(Intent.ACTION_MEDIA_BUTTON))
 
-        val mAudioManager = getSystemService (Context.AUDIO_SERVICE) as AudioManager
-        val mReceiverComponent = ComponentName( this, AudioReceiver::class.java)
-        mAudioManager.registerMediaButtonEventReceiver(mReceiverComponent);
 
         val intent= Intent(this,MusicPlayerActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)

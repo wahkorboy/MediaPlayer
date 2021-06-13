@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wahkor.mediaplayer.database.PlayListDB
 import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlaylistManagerBinding
-import com.wahkor.mediaplayer.service.BackgroundAudioService
+import com.wahkor.mediaplayer.service.AudioService
 
 class PlayListManagerActivity : AppCompatActivity() {
     private lateinit var adapter: SaveAsRecyclerAdapter
@@ -25,7 +25,7 @@ class PlayListManagerActivity : AppCompatActivity() {
     private var tableNameList = ArrayList<String>()
     private var openTable=""
     private lateinit var backIntent:Intent
-    private val mp=BackgroundAudioService()
+    private val mp=AudioService()
     private val binding: ActivityPlaylistManagerBinding by lazy {
         ActivityPlaylistManagerBinding.inflate(layoutInflater)
     }

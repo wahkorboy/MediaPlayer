@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.wahkor.mediaplayer.database.SleepDb
-import com.wahkor.mediaplayer.service.BackgroundAudioService
+import com.wahkor.mediaplayer.service.AudioService
 
 class SleepTimeReceiver:BroadcastReceiver() {
     private lateinit var db:SleepDb
-    private val mp=BackgroundAudioService()
+    private val mp=AudioService()
     override fun onReceive(context: Context?, intent: Intent?) {
         db= SleepDb(context!!)
         val receiverID=intent?.getLongExtra("notificationID",0)

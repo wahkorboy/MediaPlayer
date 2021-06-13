@@ -13,7 +13,7 @@ import com.wahkor.mediaplayer.`interface`.MenuInterface
 import com.wahkor.mediaplayer.adapter.CustomItemTouchHelperCallback
 import com.wahkor.mediaplayer.adapter.PlaylistAdapter
 import com.wahkor.mediaplayer.model.Song
-import com.wahkor.mediaplayer.service.BackgroundAudioService
+import com.wahkor.mediaplayer.service.AudioService
 
 class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
     private lateinit var menuImageView: ImageView
@@ -29,7 +29,7 @@ class MusicPlayerActivity : AppCompatActivity(),MenuInterface {
     private var songQuery=ArrayList<Song>()
     private var handler=Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
-    private var mp=BackgroundAudioService()
+    private var mp=AudioService()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_player)
