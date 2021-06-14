@@ -17,8 +17,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.service.AudioService
-/*
-class MusicNotification: Service() {
+
+class MusicNotification{/*: Service()
     private lateinit var runnable: Runnable
     private val handler=Handler(Looper.getMainLooper())
     private var notificationManager: NotificationManager?=null

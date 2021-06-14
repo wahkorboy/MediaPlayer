@@ -9,66 +9,34 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.wahkor.mediaplayer.service.AudioService
-import java.lang.String
 
 class MainActivity : AppCompatActivity() {
-    private var mCurrentState = 0
-    private var mMediaBrowserCompat: MediaBrowserCompat? = null
-    private var mMediaControllerCompat: MediaControllerCompat? = null
-    private var mPlayPauseToggleButton: Button? = null
-    private val mMediaBrowserCompatConnectionCallback: MediaBrowserCompat.ConnectionCallback =
-        object : MediaBrowserCompat.ConnectionCallback() {
-            override fun onConnected() {
-                super.onConnected()
-                mMediaControllerCompat =
-                    MediaControllerCompat(this@MainActivity, mMediaBrowserCompat!!.sessionToken)
-                mMediaControllerCompat!!.registerCallback(mMediaControllerCompatCallback)
-                MediaControllerCompat.setMediaController(this@MainActivity, mMediaControllerCompat)
-                //setSupportMediaController(mMediaControllerCompat);
-                MediaControllerCompat.getMediaController(this@MainActivity).transportControls.playFromMediaId(
-                    String.valueOf(R.raw.abandonedluna), null
-                )
-            }
-        }
-    private val mMediaControllerCompatCallback: MediaControllerCompat.Callback =
-        object : MediaControllerCompat.Callback() {
-            override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-                super.onPlaybackStateChanged(state)
-                if (state == null) {
-                    return
-                }
-                when (state.state) {
-                    PlaybackStateCompat.STATE_PLAYING -> {
-                        mCurrentState = STATE_PLAYING
-                    }
-                    PlaybackStateCompat.STATE_PAUSED -> {
-                        mCurrentState = STATE_PAUSED
-                    }
-                }
-            }
-        }
+
+    private var mPlayPauseToggleButton: Button?=null
+    private lateinit var aCH:AudioControlHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        aCH=AudioControlHelper(this)
         mPlayPauseToggleButton = findViewById<View>(R.id.button) as Button
-        mMediaBrowserCompat = MediaBrowserCompat(
+        aCH.mMediaBrowserCompat = MediaBrowserCompat(
             this, ComponentName(
                 this,
                 AudioService::class.java
             ),
-            mMediaBrowserCompatConnectionCallback, intent.extras
+            aCH.mMediaBrowserCompatConnectionCallback, intent.extras
         )
-        mMediaBrowserCompat!!.connect()
+        aCH.mMediaBrowserCompat!!.connect()
         mPlayPauseToggleButton!!.setOnClickListener {
-            mCurrentState = if (mCurrentState == STATE_PAUSED) {
+            aCH.mCurrentState = if (aCH.mCurrentState == aCH.getStatePause) {
                 MediaControllerCompat.getMediaController(this@MainActivity).transportControls.play()
-                STATE_PLAYING
+                aCH.getStatePlay
             } else {
                 if (MediaControllerCompat.getMediaController(this@MainActivity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
                     MediaControllerCompat.getMediaController(this@MainActivity).transportControls.pause()
                 }
-                STATE_PAUSED
+                aCH.getStatePause
             }
         }
     }
@@ -78,11 +46,8 @@ class MainActivity : AppCompatActivity() {
         if (MediaControllerCompat.getMediaController(this@MainActivity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
             MediaControllerCompat.getMediaController(this@MainActivity).transportControls.pause()
         }
-        mMediaBrowserCompat!!.disconnect()
+        aCH.mMediaBrowserCompat!!.disconnect()
     }
 
-    companion object {
-        private const val STATE_PAUSED = 0
-        private const val STATE_PLAYING = 1
-    }
+
 }

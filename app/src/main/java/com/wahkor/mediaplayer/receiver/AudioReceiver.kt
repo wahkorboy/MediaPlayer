@@ -17,7 +17,7 @@ class AudioReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        toast(context,"hello")
+        toast(context,"hello")/*
             if (intent?.action.equals(Intent.ACTION_MEDIA_BUTTON)) {
                 val event = intent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
                 event?.let {
@@ -38,10 +38,10 @@ class AudioReceiver : BroadcastReceiver() {
                     }
                 }
             }
-
+*/
     }
 
-    fun toast(context: Context?, message: String) {
+    private fun toast(context: Context?, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 

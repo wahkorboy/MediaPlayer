@@ -10,7 +10,7 @@ import com.wahkor.mediaplayer.service.AudioService
 class SleepTimeReceiver:BroadcastReceiver() {
     private lateinit var db:SleepDb
     private val mp=AudioService()
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(context: Context?, intent: Intent?) {/*
         db= SleepDb(context!!)
         val receiverID=intent?.getLongExtra("notificationID",0)
         val receiverNAME=intent?.getStringExtra("notificationNAME")
@@ -39,6 +39,6 @@ class SleepTimeReceiver:BroadcastReceiver() {
             }
 
         }
-
+*/
     }
 }
