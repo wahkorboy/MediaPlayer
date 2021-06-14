@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.text.TextUtils
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
@@ -22,30 +23,28 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
         override fun onReceive(context: Context?, intent: Intent?) {
             mediaPlayer?.let { mediaPlayer -> if (mediaPlayer.isPlaying) mediaPlayer.pause() }
         }
-
-        private val mediaSessionCompatCallbacks = object : MediaSessionCompat.Callback() {
-            override fun onPlay() {
-                super.onPlay()
-            }
-
-            override fun onPause() {
-                super.onPause()
-            }
-
-            override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
-                super.onPlayFromMediaId(mediaId, extras)
-            }
-        }
-
-
     }
     private val mediaSessionCompatCallback = object : MediaSessionCompat.Callback() {
         override fun onPlay() {
             super.onPlay()
             if (!successfullyRetrievedAudioFocus()) {
-                return;
+                return
             }
+            mediaSessionCompat.isActive=true
+            setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
         }
+
+        override fun onPause() {
+            super.onPause()
+        }
+
+        override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
+            super.onPlayFromMediaId(mediaId, extras)
+        }
+    }
+
+    private fun setMediaPlaybackState(statePlaying: Int) {
+        val playbackStateBuilder=PlaybackStateCompat.Builder()
     }
 
     private fun successfullyRetrievedAudioFocus(): Boolean {
@@ -75,14 +74,14 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
         parentId: String,
         result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
-        result.sendResult(null);
+        result.sendResult(null)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
+        MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
         //return START_STICKY
-        return super.onStartCommand(intent, flags, startId);
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onCreate() {
