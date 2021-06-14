@@ -1,22 +1,30 @@
 package com.wahkor.mediaplayer.service
 
+import android.R
 import android.app.PendingIntent
 import android.content.*
+import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.TextUtils
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
+import com.wahkor.mediaplayer.MediaStyleHelper.from
+import java.io.IOException
 
 
 class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
-
+    val COMMAND_EXAMPLE = "command_example"
     private lateinit var mediaSessionCompat: MediaSessionCompat
     private var mediaPlayer: MediaPlayer? = null
     private val noisyReceiver = object : BroadcastReceiver() {
@@ -32,21 +40,159 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
             }
             mediaSessionCompat.isActive=true
             setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
+            showPlayingNotification()
+            mediaPlayer?.start()
         }
 
         override fun onPause() {
             super.onPause()
+
+            setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED)
+            showPausedNotification()
         }
 
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
             super.onPlayFromMediaId(mediaId, extras)
+
+            try {
+                val afd = resources.openRawResourceFd(Integer.valueOf(mediaId)) ?: return
+                try {
+                    mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                } catch (e: IllegalStateException) {
+                    mediaPlayer?.release()
+                    initMediaPlayer()
+                    mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                }
+                afd.close()
+                initMediaSessionMetadata()
+            } catch (e: IOException) {
+                return
+            }
+
+            try {
+                mediaPlayer?.prepare()
+            } catch (e: IOException) {
+            }
+
+            //Work with extras here if you want
+        }
+
+        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+            super.onCommand(command, extras, cb)
+            if( COMMAND_EXAMPLE.equals(command,true) ) {
+                //Custom command here
+            }
+        }
+
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
         }
     }
-1111
-    private fun setMediaPlaybackState(statePlaying: Int) {
-        val playbackStateBuilder=PlaybackStateCompat.Builder()
+
+    fun onCompletion(mediaPlayer: MediaPlayer?) {
+        mediaPlayer?.release()
+        // when song complete Edit here
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        val audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        audioManager.abandonAudioFocus(this)
+        unregisterReceiver(noisyReceiver)
+        mediaSessionCompat.release()
+        NotificationManagerCompat.from(this).cancel(1)
+    }
+    private fun initMediaSessionMetadata() {
+        val metadataBuilder = MediaMetadataCompat.Builder()
+        //Notification icon in card
+        metadataBuilder.putBitmap(
+            MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, BitmapFactory.decodeResource(
+                resources, R.drawable.sym_def_app_icon
+            )
+        )
+        metadataBuilder.putBitmap(
+            MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeResource(
+                resources,  R.drawable.sym_def_app_icon
+            )
+        )
+
+        //lock screen icon for pre lollipop
+        metadataBuilder.putBitmap(
+            MediaMetadataCompat.METADATA_KEY_ART, BitmapFactory.decodeResource(
+                resources,  R.drawable.sym_def_app_icon
+            )
+        )
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, "Display Title")
+        metadataBuilder.putString(
+            MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE,
+            "Display Subtitle"
+        )
+        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_TRACK_NUMBER, 1)
+        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, 1)
+        mediaSessionCompat.setMetadata(metadataBuilder.build())
+    }
+
+
+    private fun showPausedNotification() {
+        val builder = from(this, mediaSessionCompat)
+            ?: return
+
+        builder.addAction(
+            NotificationCompat.Action(
+                R.drawable.ic_media_play,
+                "Play",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(
+                    this,
+                    PlaybackStateCompat.ACTION_PLAY_PAUSE
+                )
+            )
+        )
+        builder.setStyle(
+            androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0)
+                .setMediaSession(mediaSessionCompat.getSessionToken())
+        )
+        builder.setSmallIcon(R.drawable.sym_def_app_icon)
+        NotificationManagerCompat.from(this).notify(1, builder.build())
+    }
+
+    private fun setMediaPlaybackState(statePlaying: Int) {
+        val playbackStateBuilder=PlaybackStateCompat.Builder()
+        when(statePlaying){
+            PlaybackStateCompat.STATE_PLAYING ->{
+                playbackStateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PAUSE)
+            }
+            else ->{
+                playbackStateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY_PAUSE or PlaybackStateCompat.ACTION_PLAY)
+            }
+        }
+
+        playbackStateBuilder.setState(statePlaying,PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+            0F
+        )
+        mediaSessionCompat.setPlaybackState(playbackStateBuilder.build())
+    }
+    private fun showPlayingNotification() {
+        val builder =
+            from(this@AudioService, mediaSessionCompat)
+                ?: return
+        builder.addAction(
+            NotificationCompat.Action(
+                R.drawable.ic_media_pause,
+                "Pause",
+                MediaButtonReceiver.buildMediaButtonPendingIntent(
+                    this,
+                    PlaybackStateCompat.ACTION_PLAY_PAUSE
+                )
+            )
+        )
+        builder.setStyle(
+            androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0)
+                .setMediaSession(mediaSessionCompat.sessionToken)
+        )
+        builder.setSmallIcon(R.drawable.sym_def_app_icon)
+        NotificationManagerCompat.from(this@AudioService).notify(1, builder.build())
+    }
     private fun successfullyRetrievedAudioFocus(): Boolean {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val result = audioManager.requestAudioFocus(

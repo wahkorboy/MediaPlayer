@@ -1,9 +1,8 @@
 package com.wahkor.mediaplayer
 
 import android.content.Context
-import android.media.session.MediaSession
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
-import com.wahkor.mediaplayer.receiver.AudioReceiver
 
 
 object MediaStyleHelper {
@@ -15,7 +14,7 @@ object MediaStyleHelper {
      * @return A pre-built notification with information from the given media session.
      */
     fun from(
-        context: Context, mediaSession: MediaSession
+        context: Context, mediaSession: MediaSessionCompat
     ): NotificationCompat.Builder {
         val controller= mediaSession.controller
         val mediaMetadata=controller.metadata

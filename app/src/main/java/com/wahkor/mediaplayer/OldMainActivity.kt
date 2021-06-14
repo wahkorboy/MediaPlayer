@@ -4,7 +4,6 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.session.MediaSession
@@ -26,7 +25,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.random.Random
 
-class MainActivity : AppCompatActivity() {
+class OldMainActivity : AppCompatActivity() {
     private lateinit var audioReceiverComponentName:ComponentName
     private lateinit var audioManager: AudioManager
     private lateinit var pendingIntent: PendingIntent
@@ -38,7 +37,7 @@ class MainActivity : AppCompatActivity() {
     private val tableName="allSong"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_old_main)
         db= PlayListDB(this)
         audioManager=getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioReceiverComponentName=ComponentName(this,AudioReceiver::class.java)
