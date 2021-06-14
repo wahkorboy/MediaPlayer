@@ -12,30 +12,7 @@
         android:roundIcon="@drawable/ic_media_player_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.MediaPlayer">
-        <activity android:name=".MusicPlayerActivity" />
-        <activity android:name=".PlayListManagerActivity" />
-        <activity android:name=".AddSongToPlaylistActivity" />
-        <activity android:name=".SleepTimeActivity" />
-        <activity android:name=".PlayMusicByFileActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="content" />
-                <data android:scheme="file" />
-                <data android:mimeType="application/x-flac" />
-                <data android:mimeType="audio/*" />
-                <data android:mimeType="application/ogg" />
-                <data android:mimeType="application/x-ogg" />
-                <data android:mimeType="application/itunes" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".OldMainActivity">
-        </activity>
-        <activity android:name=".MainActivity" >
-
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,9 +20,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".receiver.SleepTimeReceiver"
-            android:enabled="true" />
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
@@ -60,7 +34,6 @@
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
-        <service android:name=".notification.MusicNotification" />
     </application>
 
 </manifest>

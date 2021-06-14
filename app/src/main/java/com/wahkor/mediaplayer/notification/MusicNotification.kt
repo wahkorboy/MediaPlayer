@@ -17,7 +17,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import com.wahkor.mediaplayer.R
 import com.wahkor.mediaplayer.service.AudioService
-
+/*
 class MusicNotification: Service() {
     private lateinit var runnable: Runnable
     private val handler=Handler(Looper.getMainLooper())
@@ -75,4 +75,5 @@ class MusicNotification: Service() {
         return START_STICKY
         //return super.onStartCommand(intent, flags, startId)
     }
+*/
 }

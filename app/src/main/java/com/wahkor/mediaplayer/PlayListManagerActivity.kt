@@ -17,7 +17,7 @@ import com.wahkor.mediaplayer.database.PlaylistStatusDb
 import com.wahkor.mediaplayer.databinding.ActivityPlaylistManagerBinding
 import com.wahkor.mediaplayer.service.AudioService
 
-class PlayListManagerActivity : AppCompatActivity() {
+class PlayListManagerActivity : AppCompatActivity() {/*
     private lateinit var adapter: SaveAsRecyclerAdapter
     private lateinit var db: PlayListDB
     private lateinit var statusDb: PlaylistStatusDb
@@ -199,5 +199,5 @@ class PlayListManagerActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int = list.size
 
-    }
+    }*/
 }

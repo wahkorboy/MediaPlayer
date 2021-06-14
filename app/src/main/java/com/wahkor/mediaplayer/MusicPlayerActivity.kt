@@ -18,7 +18,7 @@ import com.wahkor.mediaplayer.model.Song
 import com.wahkor.mediaplayer.notification.MusicNotification
 import com.wahkor.mediaplayer.service.AudioService
 
-class MusicPlayerActivity : AppCompatActivity(), MenuInterface {
+class MusicPlayerActivity : AppCompatActivity(), MenuInterface {/*
     private lateinit var menuImageView: ImageView
     private lateinit var settingImageView: ImageView
     private lateinit var titleView: TextView
@@ -138,5 +138,5 @@ class MusicPlayerActivity : AppCompatActivity(), MenuInterface {
 
         super.onDestroy()
     }
-
+*/
 }
