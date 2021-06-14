@@ -14,7 +14,7 @@ import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 
 
-class AudioService: MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
+class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
 
     private lateinit var mediaSessionCompat: MediaSessionCompat
     private var mediaPlayer: MediaPlayer? = null
@@ -39,7 +39,24 @@ class AudioService: MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChange
 
 
     }
-    private val mediaSessionCompatCallback=object:MediaSessionCompat.Callback(){
+    private val mediaSessionCompatCallback = object : MediaSessionCompat.Callback() {
+        override fun onPlay() {
+            super.onPlay()
+            if (!successfullyRetrievedAudioFocus()) {
+                return;
+            }
+        }
+    }
+
+    private fun successfullyRetrievedAudioFocus(): Boolean {
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val result = audioManager.requestAudioFocus(
+            this,
+            AudioManager.STREAM_MUSIC,
+            AudioManager.AUDIOFOCUS_GAIN
+        )
+
+        return result == AudioManager.AUDIOFOCUS_GAIN
 
     }
 
@@ -76,39 +93,65 @@ class AudioService: MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChange
     }
 
     private fun initNoisyReceiver() {
-        val filters=IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        registerReceiver(noisyReceiver,filters)
+        val filters = IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        registerReceiver(noisyReceiver, filters)
     }
 
     private fun initMediaSession() {
-        val mediaButtonReceiver = ComponentName(applicationContext,MediaButtonReceiver::class.java)
-        mediaSessionCompat= MediaSessionCompat(applicationContext,"TAG",mediaButtonReceiver,null)
+        val mediaButtonReceiver = ComponentName(applicationContext, MediaButtonReceiver::class.java)
+        mediaSessionCompat =
+            MediaSessionCompat(applicationContext, "TAG", mediaButtonReceiver, null)
         mediaSessionCompat.setCallback(mediaSessionCompatCallback)
         mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
 
-        val mediaButtonIntent=Intent(Intent.ACTION_MEDIA_BUTTON)
-        mediaButtonIntent.setClass(this,MediaButtonReceiver::class.java)
-        val pendingIntent=PendingIntent.getBroadcast(this,0,mediaButtonIntent,0)
+        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON)
+        mediaButtonIntent.setClass(this, MediaButtonReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, mediaButtonIntent, 0)
         mediaSessionCompat.setMediaButtonReceiver(pendingIntent)
 
-        sessionToken=mediaSessionCompat.sessionToken
+        sessionToken = mediaSessionCompat.sessionToken
 
     }
 
     private fun initMediaPlayer() {
-        mediaPlayer= MediaPlayer().also {mediaPlayer ->
-            mediaPlayer.setWakeMode(applicationContext,PowerManager.PARTIAL_WAKE_LOCK)
-            mediaPlayer.setAudioAttributes(AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build())
-            mediaPlayer.setVolume(0.5f,0.5f)
+        mediaPlayer = MediaPlayer().also { mediaPlayer ->
+            mediaPlayer.setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
+            mediaPlayer.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            mediaPlayer.setVolume(1.0f, 1.0f)
 
         }
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
-        TODO("Not yet implemented")
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                mediaPlayer?.let {
+                    if (!it.isPlaying) it.start()
+                    it.setVolume(1.0f, 1.0f)
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                mediaPlayer?.let {
+                    if (it.isPlaying) it.start()
+                }
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                mediaPlayer?.let {
+                    if (it.isPlaying) it.pause()
+                }
+
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                mediaPlayer?.let {
+                    if (it.isPlaying) it.setVolume(0.3f, 0.3f)
+                }
+            }
+        }
     }
 }
 
