@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.media.session.MediaSession
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Toast
@@ -26,7 +27,11 @@ import kotlin.collections.ArrayList
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
-    private val audioReceiver=AudioReceiver()
+    private lateinit var audioReceiverComponentName:ComponentName
+    private lateinit var audioManager: AudioManager
+    private lateinit var pendingIntent: PendingIntent
+    private lateinit var audioReceiverIntent:Intent
+    private lateinit var mediaSession:MediaSession
     private val audioBecomingNoisyReceiver=AudioBecomingNoisyReceiver()
     private lateinit var db:PlayListDB
     private val requestAskCode = 1159
@@ -35,7 +40,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         db= PlayListDB(this)
+        audioManager=getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioReceiverComponentName=ComponentName(this,AudioReceiver::class.java)
 
+        audioReceiverIntent=Intent(this,AudioReceiver::class.java)
+        pendingIntent= PendingIntent.getBroadcast(this,0,audioReceiverIntent,PendingIntent.FLAG_UPDATE_CURRENT)
+        mediaSession= MediaSession(this,"tag")
         // check Permissions
         checkPermissions()
     }
@@ -122,11 +132,13 @@ class MainActivity : AppCompatActivity() {
         startService(mpService)
 
         val notificationService= Intent(this, MusicNotification::class.java)
-        startService(notificationService)
-        registerReceiver(audioBecomingNoisyReceiver,
+        //startService(notificationService)
+        /*registerReceiver(audioBecomingNoisyReceiver,
             IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
-        )
-        registerReceiver(audioReceiver,IntentFilter(Intent.ACTION_MEDIA_BUTTON))
+        )*/
+        //audioManager.registerMediaButtonEventReceiver(audioReceiverComponentName)
+        //mediaSession.setMediaButtonReceiver(pendingIntent)
+
 
 
         val intent= Intent(this,MusicPlayerActivity::class.java)

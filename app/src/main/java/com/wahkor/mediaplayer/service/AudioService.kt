@@ -1,211 +1,140 @@
 package com.wahkor.mediaplayer.service
 
-import android.app.NotificationManager
-import android.app.Service
+import android.app.PendingIntent
 import android.content.*
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.os.Build
-import android.os.IBinder
-import android.provider.Settings
-import android.widget.Toast
-import androidx.annotation.RequiresApi
-import com.wahkor.mediaplayer.database.PlayListDB
-import com.wahkor.mediaplayer.database.PlaylistStatusDb
-import com.wahkor.mediaplayer.model.Song
+import android.os.Bundle
+import android.os.PowerManager
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.text.TextUtils
+import androidx.media.MediaBrowserServiceCompat
+import androidx.media.session.MediaButtonReceiver
 
-class AudioService: Service(), AudioManager.OnAudioFocusChangeListener {
 
-    private lateinit var audioManager: AudioManager
-    companion object{
-        private lateinit var db:PlayListDB
-        private lateinit var statusDb: PlaylistStatusDb
-        private lateinit var mediaPlayer: MediaPlayer
-        private var songQuery=ArrayList<Song>()
-        private var tableName:String?=null
-        private lateinit var currentSong:Song
-        private var update=false
+class AudioService: MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
+
+    private lateinit var mediaSessionCompat: MediaSessionCompat
+    private var mediaPlayer: MediaPlayer? = null
+    private val noisyReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            mediaPlayer?.let { mediaPlayer -> if (mediaPlayer.isPlaying) mediaPlayer.pause() }
+        }
+
+        private val mediaSessionCompatCallbacks = object : MediaSessionCompat.Callback() {
+            override fun onPlay() {
+                super.onPlay()
+            }
+
+            override fun onPause() {
+                super.onPause()
+            }
+
+            override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
+                super.onPlayFromMediaId(mediaId, extras)
+            }
+        }
+
+
     }
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+    private val mediaSessionCompatCallback=object:MediaSessionCompat.Callback(){
+
+    }
+
+    override fun onGetRoot(
+        clientPackageName: String,
+        clientUid: Int,
+        rootHints: Bundle?
+    ): BrowserRoot? {
+        return if (TextUtils.equals(clientPackageName, packageName)) {
+            BrowserRoot("Media Player", null)
+        } else null
+
+    }
+
+    override fun onLoadChildren(
+        parentId: String,
+        result: Result<MutableList<MediaBrowserCompat.MediaItem>>
+    ) {
+        result.sendResult(null);
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        db= PlayListDB(this)
-        statusDb= PlaylistStatusDb(this)
-        tableName= statusDb.getTableName
-        if (tableName != null) {
-            songQuery=db.getData(tableName!!)
-        }else{
-            tableName="playlist_default"
-            songQuery=db.getData("allSong")
-            db.createTable(tableName!!, songQuery)
-            statusDb.setTableName(tableName!!)
-        }
-        mediaPlayer=MediaPlayer()
-        var position=0
-        for (i in 0 until songQuery.size){
-            if (songQuery[i].is_playing){
-                position=i
-            }
-            songQuery[i].is_playing=false
-        }
-        if (songQuery.size>0){
-            songQuery[position].is_playing=true
-            setupPlayer(songQuery[position])
-        }else{
-            mediaPlayer=MediaPlayer.create(this,Settings.System.DEFAULT_RINGTONE_URI)
-        }
-        mediaPlayer.setVolume(0.5f,0.5f)
-        mediaPlayer.setOnCompletionListener { nextPlay() }
-        audioManager= getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-
-
-
-        return START_STICKY
-    }
-    fun toast(context: Context,message: String)=Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
-    fun isPlaying()= mediaPlayer.isPlaying
-    fun start() {
-           mediaPlayer.start()
-
-
-
-    }
-    fun stop() {
-        if (mediaPlayer.isPlaying){
-            mediaPlayer.stop()
-        }
-    }
-    override fun onDestroy() {
-        super.onDestroy()
+        MediaButtonReceiver.handleIntent(mediaSessionCompat, intent);
+        //return START_STICKY
+        return super.onStartCommand(intent, flags, startId);
     }
 
-    fun prevPlay(){
-        var position=0
-        for (i in 0 until songQuery.size){
-            if (songQuery[i].is_playing){
-                songQuery[i].is_playing=false
-                position=if (i==0) songQuery.size-1 else i-1
-            }
-        }
-        songQuery[position].is_playing=true
-        setupPlayer(songQuery[position])
-        mediaPlayer.start()
+    override fun onCreate() {
+        super.onCreate()
+        initMediaPlayer()
+        initMediaSession()
+        initNoisyReceiver()
     }
-    fun nextPlay(){
-        var position=0
-        for (i in 0 until songQuery.size){
-            if (songQuery[i].is_playing){
-                songQuery[i].is_playing=false
-                position=if (i== songQuery.size-1) 0 else i+1
-            }
-        }
-        songQuery[position].is_playing=true
-        setupPlayer(songQuery[position])
-        mediaPlayer.start()
+
+    private fun initNoisyReceiver() {
+        val filters=IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+        registerReceiver(noisyReceiver,filters)
     }
-    private fun setupPlayer(song: Song){
-        mediaPlayer.reset()
-        mediaPlayer.setDataSource(song.data)
-        mediaPlayer.prepare()
-        db.setData(tableName!!, songQuery)
-        currentSong=song
-        update=true
+
+    private fun initMediaSession() {
+        val mediaButtonReceiver = ComponentName(applicationContext,MediaButtonReceiver::class.java)
+        mediaSessionCompat= MediaSessionCompat(applicationContext,"TAG",mediaButtonReceiver,null)
+        mediaSessionCompat.setCallback(mediaSessionCompatCallback)
+        mediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+
+        val mediaButtonIntent=Intent(Intent.ACTION_MEDIA_BUTTON)
+        mediaButtonIntent.setClass(this,MediaButtonReceiver::class.java)
+        val pendingIntent=PendingIntent.getBroadcast(this,0,mediaButtonIntent,0)
+        mediaSessionCompat.setMediaButtonReceiver(pendingIntent)
+
+        sessionToken=mediaSessionCompat.sessionToken
 
     }
 
-    fun seekTo(progress: Int) {
-        mediaPlayer.seekTo(progress)
+    private fun initMediaPlayer() {
+        mediaPlayer= MediaPlayer().also {mediaPlayer ->
+            mediaPlayer.setWakeMode(applicationContext,PowerManager.PARTIAL_WAKE_LOCK)
+            mediaPlayer.setAudioAttributes(AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build())
+            mediaPlayer.setVolume(0.5f,0.5f)
+
+        }
     }
 
-    fun pause()  {
-        if (mediaPlayer.isPlaying){
-            mediaPlayer.pause()
-        }
+    override fun onAudioFocusChange(focusChange: Int) {
+        TODO("Not yet implemented")
     }
-        fun clearUpdate() {
-            update=false
-        }
+}
 
-        fun playlistAction(newList: MutableList<Song>):Boolean{
-            songQuery=newList as ArrayList<Song>
-            var position=0
-            for(i in 0 until songQuery.size){
-                if(songQuery[i].is_playing){
-                    position=i
-                }
-                songQuery[i].is_playing=false
-            }
-            return if(songQuery.size>0){
-                songQuery[position].is_playing=true
-                setupPlayer(songQuery[position])
-                true
-            }else{
-                false
-            }
-        }
 
-        fun playlistMoved(newList: MutableList<Song>) {
-            songQuery=newList as ArrayList<Song>
-            tableName?.let {
-                db.setData(it, songQuery)
-            }
 
-        }
 
-        fun playlistRemoved(newList: MutableList<Song>) {
-            if(tableName !="Playlist_default"){
-                songQuery=newList as ArrayList<Song>
-                tableName?.let { db.setData(it, songQuery) }
-                getSong()?.let { newSong ->
-                    if (newSong.data != currentSong.data)
-                        mediaPlayer.stop()
-                }
-            }
-        }
-        fun changePlaylist(saveTable: String) {
-            if (mediaPlayer.isPlaying){
-                mediaPlayer.stop()
-            }
-            tableName=saveTable
-            songQuery=db.getData(tableName!!)
-            getSong()?.let {
-                setupPlayer(it)
-            }
-        }
-        private fun getSong():Song?{
-            var position=0
-            return if (songQuery.size>0){
-                for (i in 0 until songQuery.size){
-                    if (songQuery[i].is_playing) position=i
-                    songQuery[i].is_playing=false
-                }
-                songQuery[position].is_playing=true
-                songQuery[position]
 
-            }else null
-        }
 
-        val getTableName: String? get() = tableName
-        val isUpdate: Boolean get() = update
-        val title:String get() = currentSong.title
-        val artist:String get() = currentSong.artist
-        val duration:Int get() = mediaPlayer.duration
-        val currentPosition:Int get() = mediaPlayer.currentPosition
-        val getSongQuery get() = songQuery
-        override fun onAudioFocusChange(focusChange: Int) {
-            when(focusChange){
-                AudioManager.AUDIOFOCUS_GAIN->{
-                    mediaPlayer.start()
-                }
-                AudioManager.AUDIOFOCUS_LOSS->{
-                    mediaPlayer.release()
-                }
-                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT->{
-                    mediaPlayer.pause()
-                }
-            }
-        }
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

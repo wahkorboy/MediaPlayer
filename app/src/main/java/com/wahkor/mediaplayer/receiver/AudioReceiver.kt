@@ -9,16 +9,15 @@ import com.wahkor.mediaplayer.service.AudioService
 
 class AudioReceiver : BroadcastReceiver() {
     companion object {
-        private lateinit var mp: AudioService
+        private val mp=AudioService()
         private var lastClick = 0L
         private var currentClick = 0L
         private const val delayClick = 100L
-        private var time=0
 
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        mp = AudioService()
+        toast(context,"hello")
             if (intent?.action.equals(Intent.ACTION_MEDIA_BUTTON)) {
                 val event = intent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)
                 event?.let {
