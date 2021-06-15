@@ -1,31 +1,43 @@
 package com.wahkor.mediaplayer
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import com.wahkor.mediaplayer.service.AudioService
 import java.lang.String
 
-class AudioControlHelper(context: Activity) {
+class AudioControlHelper(val activity: Activity,val callback:(state:Int)-> Unit) {
 
+    fun build(){
+        mMediaBrowserCompat = MediaBrowserCompat(
+            activity, ComponentName(
+                activity,
+                AudioService::class.java
+            ),
+            mMediaBrowserCompatConnectionCallback, activity.intent.extras
+        )
+        mMediaBrowserCompat!!.connect()
+    }
     companion object {
         private const val STATE_PAUSED = 0
         private const val STATE_PLAYING = 1
+
     }
     var mCurrentState:Int=0
     var mMediaBrowserCompat: MediaBrowserCompat?=null
     var mMediaControllerCompat: MediaControllerCompat?=null
-    val mMediaBrowserCompatConnectionCallback: MediaBrowserCompat.ConnectionCallback =
+    private val mMediaBrowserCompatConnectionCallback: MediaBrowserCompat.ConnectionCallback =
         object : MediaBrowserCompat.ConnectionCallback() {
             override fun onConnected() {
                 super.onConnected()
                 mMediaControllerCompat =
-                    MediaControllerCompat(context, mMediaBrowserCompat!!.sessionToken)
+                    MediaControllerCompat(activity, mMediaBrowserCompat!!.sessionToken)
                 mMediaControllerCompat!!.registerCallback(mMediaControllerCompatCallback)
-                MediaControllerCompat.setMediaController(context, mMediaControllerCompat)
-                //setSupportMediaController(mMediaControllerCompat);
-                MediaControllerCompat.getMediaController(context).transportControls.playFromMediaId(
+                MediaControllerCompat.setMediaController(activity, mMediaControllerCompat)
+                MediaControllerCompat.getMediaController(activity).transportControls.playFromMediaId(
                     String.valueOf(R.raw.abandonedluna), null
                 )
             }
@@ -35,9 +47,6 @@ class AudioControlHelper(context: Activity) {
         object : MediaControllerCompat.Callback() {
             override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
                 super.onPlaybackStateChanged(state)
-                if (state == null) {
-                    return
-                }
                 when (state.state) {
                     PlaybackStateCompat.STATE_PLAYING -> {
                         mCurrentState = STATE_PLAYING
@@ -45,9 +54,27 @@ class AudioControlHelper(context: Activity) {
                     PlaybackStateCompat.STATE_PAUSED -> {
                         mCurrentState = STATE_PAUSED
                     }
+                    else -> {}
                 }
+                callback(mCurrentState)
             }
         }
-    val getStatePlay get() = STATE_PLAYING
-    val getStatePause get() = STATE_PAUSED
+    fun playBTN(){
+        mCurrentState = if (mCurrentState == STATE_PAUSED) {
+            MediaControllerCompat.getMediaController(activity).transportControls.play()
+            STATE_PLAYING
+        } else {
+            if (MediaControllerCompat.getMediaController(activity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
+                MediaControllerCompat.getMediaController(activity).transportControls.pause()
+            }
+            STATE_PAUSED
+        }
+    }
+
+    fun onDestroy() {
+        if (MediaControllerCompat.getMediaController(activity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
+            MediaControllerCompat.getMediaController(activity).transportControls.pause()
+        }
+        mMediaBrowserCompat!!.disconnect()
+    }
 }

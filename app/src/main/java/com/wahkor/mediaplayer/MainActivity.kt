@@ -12,41 +12,32 @@ import com.wahkor.mediaplayer.service.AudioService
 
 class MainActivity : AppCompatActivity() {
 
+    private val STATE_PAUSED = 0
+    private val STATE_PLAYING = 1
     private var mPlayPauseToggleButton: Button?=null
     private lateinit var aCH:AudioControlHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        aCH=AudioControlHelper(this)
-        mPlayPauseToggleButton = findViewById<View>(R.id.button) as Button
-        aCH.mMediaBrowserCompat = MediaBrowserCompat(
-            this, ComponentName(
-                this,
-                AudioService::class.java
-            ),
-            aCH.mMediaBrowserCompatConnectionCallback, intent.extras
-        )
-        aCH.mMediaBrowserCompat!!.connect()
-        mPlayPauseToggleButton!!.setOnClickListener {
-            aCH.mCurrentState = if (aCH.mCurrentState == aCH.getStatePause) {
-                MediaControllerCompat.getMediaController(this@MainActivity).transportControls.play()
-                aCH.getStatePlay
-            } else {
-                if (MediaControllerCompat.getMediaController(this@MainActivity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-                    MediaControllerCompat.getMediaController(this@MainActivity).transportControls.pause()
-                }
-                aCH.getStatePause
+        aCH=AudioControlHelper(this){state: Int ->
+            when(state){
+                STATE_PAUSED -> mPlayPauseToggleButton?.text="Play"
+                STATE_PLAYING -> mPlayPauseToggleButton?.text="Pause"
             }
+
+        }
+        aCH.build()
+
+        mPlayPauseToggleButton = findViewById<View>(R.id.button) as Button
+        mPlayPauseToggleButton!!.setOnClickListener {
+            aCH.playBTN()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (MediaControllerCompat.getMediaController(this@MainActivity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-            MediaControllerCompat.getMediaController(this@MainActivity).transportControls.pause()
-        }
-        aCH.mMediaBrowserCompat!!.disconnect()
+        aCH.onDestroy()
     }
 
 

@@ -15,6 +15,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.text.TextUtils
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
@@ -75,6 +76,11 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
             }
 
             //Work with extras here if you want
+        }
+
+        override fun onPlayFromSearch(query: String?, extras: Bundle?) {
+            super.onPlayFromSearch(query, extras)
+            Toast.makeText(applicationContext,query,Toast.LENGTH_SHORT).show()
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
