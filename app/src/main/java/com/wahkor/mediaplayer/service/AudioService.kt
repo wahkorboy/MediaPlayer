@@ -21,11 +21,14 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import com.wahkor.mediaplayer.MediaStyleHelper.from
+import com.wahkor.mediaplayer.PlaylistManager
 import java.io.IOException
+import java.lang.Exception
 
 
 class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
     val COMMAND_EXAMPLE = "command_example"
+    private lateinit var playlistManager:PlaylistManager
     private lateinit var mediaSessionCompat: MediaSessionCompat
     private var mediaPlayer: MediaPlayer? = null
     private val noisyReceiver = object : BroadcastReceiver() {
@@ -40,14 +43,14 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
                 return
             }
             mediaSessionCompat.isActive=true
-            setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
             showPlayingNotification()
             mediaPlayer?.start()
+            setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
         }
 
         override fun onPause() {
             super.onPause()
-
+            mediaPlayer?.pause()
             setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED)
             showPausedNotification()
         }
@@ -80,24 +83,36 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
             super.onPlayFromSearch(query, extras)
-            Toast.makeText(applicationContext,query,Toast.LENGTH_SHORT).show()
-        }
+            playlistManager=PlaylistManager(this@AudioService).also { it.build() }
+            val song=playlistManager.command(query)
+                    song?.let {  song ->
+                        try {
+                            try {
+                                mediaPlayer?.setDataSource(song.data)
+                            } catch (e: IllegalStateException) {
+                                mediaPlayer?.release()
+                                initMediaPlayer()
+                                mediaPlayer?.setDataSource(song.data)
+                            }
+                            initMediaSessionMetadata()
+                        } catch (e: IOException) {
+                            return
+                        }
 
-        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
-            super.onCommand(command, extras, cb)
-            if( COMMAND_EXAMPLE.equals(command,true) ) {
-                //Custom command here
-            }
+                        try {
+                            mediaPlayer?.prepare()
+                        } catch (e: IOException) {
+                        }
+
+                    }
+
+
         }
 
         override fun onSeekTo(pos: Long) {
             super.onSeekTo(pos)
         }
-    }
 
-    fun onCompletion(mediaPlayer: MediaPlayer?) {
-        mediaPlayer?.release()
-        // when song complete Edit here
     }
 
     override fun onDestroy() {
@@ -138,7 +153,6 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
         metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, 1)
         mediaSessionCompat.setMetadata(metadataBuilder.build())
     }
-
 
     private fun showPausedNotification() {
         val builder = from(this, mediaSessionCompat)
@@ -228,9 +242,8 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
     ) {
         result.sendResult(null)
     }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
+        playlistManager=PlaylistManager(this).also { it.build() }
         MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
         //return START_STICKY
         return super.onStartCommand(intent, flags, startId)
@@ -277,6 +290,7 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
 
         }
     }
+
 
     override fun onAudioFocusChange(focusChange: Int) {
         when (focusChange) {

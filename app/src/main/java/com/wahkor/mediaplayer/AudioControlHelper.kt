@@ -6,6 +6,7 @@ import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import android.widget.Toast
 import com.wahkor.mediaplayer.service.AudioService
 import java.lang.String
 
@@ -37,9 +38,7 @@ class AudioControlHelper(val activity: Activity,val callback:(state:Int)-> Unit)
                     MediaControllerCompat(activity, mMediaBrowserCompat!!.sessionToken)
                 mMediaControllerCompat!!.registerCallback(mMediaControllerCompatCallback)
                 MediaControllerCompat.setMediaController(activity, mMediaControllerCompat)
-                MediaControllerCompat.getMediaController(activity).transportControls.playFromMediaId(
-                    String.valueOf(R.raw.abandonedluna), null
-                )
+                MediaControllerCompat.getMediaController(activity).transportControls.playFromSearch("current",null)
             }
         }
 
@@ -59,14 +58,24 @@ class AudioControlHelper(val activity: Activity,val callback:(state:Int)-> Unit)
                 callback(mCurrentState)
             }
         }
+    fun nextBTN(){
+        MediaControllerCompat.getMediaController(activity).transportControls.playFromSearch("next",null)
+        MediaControllerCompat.getMediaController(activity).transportControls.play()
+        mCurrentState=STATE_PLAYING
+        callback(mCurrentState)
+    }
+    fun prevBTN(){
+        MediaControllerCompat.getMediaController(activity).transportControls.playFromSearch("prev",null)
+        MediaControllerCompat.getMediaController(activity).transportControls.play()
+        mCurrentState=STATE_PLAYING
+        callback(mCurrentState)
+    }
     fun playBTN(){
         mCurrentState = if (mCurrentState == STATE_PAUSED) {
             MediaControllerCompat.getMediaController(activity).transportControls.play()
             STATE_PLAYING
         } else {
-            if (MediaControllerCompat.getMediaController(activity).playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-                MediaControllerCompat.getMediaController(activity).transportControls.pause()
-            }
+            MediaControllerCompat.getMediaController(activity).transportControls.pause()
             STATE_PAUSED
         }
     }
