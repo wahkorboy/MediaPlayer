@@ -21,19 +21,22 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import com.wahkor.mediaplayer.MediaStyleHelper.from
-import com.wahkor.mediaplayer.PlaylistManager
+import com.wahkor.mediaplayer.`interface`.PlaylistInterface
 import java.io.IOException
-import java.lang.Exception
 
 
-class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener {
-    val COMMAND_EXAMPLE = "command_example"
-    private lateinit var playlistManager:PlaylistManager
+class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChangeListener,
+    MediaPlayer.OnCompletionListener,PlaylistInterface {
     private lateinit var mediaSessionCompat: MediaSessionCompat
-    private var mediaPlayer: MediaPlayer? = null
+
+    companion object{
+        private var mediaPlayer=MediaPlayer()
+    }
     private val noisyReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            mediaPlayer?.let { mediaPlayer -> if (mediaPlayer.isPlaying) mediaPlayer.pause() }
+            mediaPlayer?.let { mediaPlayer -> if (mediaPlayer.isPlaying) mediaPlayer.pause()
+                setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED)
+            }
         }
     }
     private val mediaSessionCompatCallback = object : MediaSessionCompat.Callback() {
@@ -43,15 +46,16 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
                 return
             }
             mediaSessionCompat.isActive=true
+            setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
             showPlayingNotification()
             mediaPlayer?.start()
-            setMediaPlaybackState(PlaybackStateCompat.STATE_PLAYING);
         }
 
         override fun onPause() {
             super.onPause()
-            mediaPlayer?.pause()
+
             setMediaPlaybackState(PlaybackStateCompat.STATE_PAUSED)
+            mediaPlayer?.pause()
             showPausedNotification()
         }
 
@@ -61,11 +65,11 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
             try {
                 val afd = resources.openRawResourceFd(Integer.valueOf(mediaId)) ?: return
                 try {
-                    mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 } catch (e: IllegalStateException) {
-                    mediaPlayer?.release()
+                    mediaPlayer.release()
                     initMediaPlayer()
-                    mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                    mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
                 }
                 afd.close()
                 initMediaSessionMetadata()
@@ -74,7 +78,7 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
             }
 
             try {
-                mediaPlayer?.prepare()
+                mediaPlayer.prepare()
             } catch (e: IOException) {
             }
 
@@ -83,36 +87,22 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
 
         override fun onPlayFromSearch(query: String?, extras: Bundle?) {
             super.onPlayFromSearch(query, extras)
-            playlistManager=PlaylistManager(this@AudioService).also { it.build() }
-            val song=playlistManager.command(query)
-                    song?.let {  song ->
-                        try {
-                            try {
-                                mediaPlayer?.setDataSource(song.data)
-                            } catch (e: IllegalStateException) {
-                                mediaPlayer?.release()
-                                initMediaPlayer()
-                                mediaPlayer?.setDataSource(song.data)
-                            }
-                            initMediaSessionMetadata()
-                        } catch (e: IOException) {
-                            return
-                        }
+            try {
+                val song=getCurrentSong(this@AudioService)
+                song?.let {
+                    mediaPlayer.setDataSource(it.data)
 
-                        try {
-                            mediaPlayer?.prepare()
-                        } catch (e: IOException) {
-                        }
-
-                    }
-
-
+                    initMediaSessionMetadata()
+                    mediaPlayer.prepare()
+                    mediaPlayer.setOnCompletionListener(this@AudioService)
+                }
+            }catch (e:Exception){}
         }
+    }
 
-        override fun onSeekTo(pos: Long) {
-            super.onSeekTo(pos)
-        }
-
+    override fun onCompletion(mediaPlayer: MediaPlayer?) {
+Toast.makeText(this,"finish",Toast.LENGTH_SHORT).show()
+        // when song complete Edit here
     }
 
     override fun onDestroy() {
@@ -153,6 +143,7 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
         metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_NUM_TRACKS, 1)
         mediaSessionCompat.setMetadata(metadataBuilder.build())
     }
+
 
     private fun showPausedNotification() {
         val builder = from(this, mediaSessionCompat)
@@ -220,9 +211,7 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
             AudioManager.STREAM_MUSIC,
             AudioManager.AUDIOFOCUS_GAIN
         )
-
         return result == AudioManager.AUDIOFOCUS_GAIN
-
     }
 
     override fun onGetRoot(
@@ -242,9 +231,14 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
     ) {
         result.sendResult(null)
     }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        playlistManager=PlaylistManager(this).also { it.build() }
+
         MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
+        mediaPlayer.setOnCompletionListener(this)
+        val song=getCurrentSong(this)
+        song?.let { mediaPlayer.setDataSource(it.data) ;mediaPlayer.prepare();mediaPlayer.start()
+            Toast.makeText(this,"initial audioService ",Toast.LENGTH_SHORT).show()}
         //return START_STICKY
         return super.onStartCommand(intent, flags, startId)
     }
@@ -291,28 +285,27 @@ class AudioService : MediaBrowserServiceCompat(), AudioManager.OnAudioFocusChang
         }
     }
 
-
     override fun onAudioFocusChange(focusChange: Int) {
         when (focusChange) {
             AudioManager.AUDIOFOCUS_GAIN -> {
-                mediaPlayer?.let {
+                mediaPlayer.let {
                     if (!it.isPlaying) it.start()
                     it.setVolume(1.0f, 1.0f)
                 }
             }
             AudioManager.AUDIOFOCUS_LOSS -> {
-                mediaPlayer?.let {
+                mediaPlayer.let {
                     if (it.isPlaying) it.start()
                 }
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                mediaPlayer?.let {
+                mediaPlayer.let {
                     if (it.isPlaying) it.pause()
                 }
 
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                mediaPlayer?.let {
+                mediaPlayer.let {
                     if (it.isPlaying) it.setVolume(0.3f, 0.3f)
                 }
             }

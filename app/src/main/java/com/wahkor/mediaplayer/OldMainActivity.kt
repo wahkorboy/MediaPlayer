@@ -121,14 +121,14 @@ class OldMainActivity : AppCompatActivity() {
         val sleepDb=SleepDb(this)
         val sleep=sleepDb.getSleep
         if (sleep.isRepeat){
-            sleep.repeatTimeId=Random.nextLong(1,9999999999)
+            sleep.repeatTimeId=Random.nextLong(1,9999999)
             //update DB and broadcast receiver sleep.id
             sleepDb.setSleep(sleep)
             setAlarm(sleep)
         }
         // setup background music
-        //val mpService= Intent(this, AudioService::class.java)
-        //startService(mpService)
+        val mainIntent=Intent(this,MainActivity::class.java)
+        startActivity(mainIntent)
 
         val notificationService= Intent(this, MusicNotification::class.java)
         //startService(notificationService)
@@ -140,9 +140,9 @@ class OldMainActivity : AppCompatActivity() {
 
 
 
-        val intent= Intent(this,MainActivity::class.java)
+       // val intent= Intent(this,MusicPlayerActivity::class.java)
         //val intent= Intent(this,TestMainActivity::class.java)
-          startActivity(intent)
+         // startActivity(intent)
     }
 
     private fun setAlarm(sleep:Sleep) {

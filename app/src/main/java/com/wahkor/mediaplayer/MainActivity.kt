@@ -1,6 +1,7 @@
 package com.wahkor.mediaplayer
 
 import android.content.ComponentName
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -16,20 +17,19 @@ class MainActivity : AppCompatActivity() {
     private val STATE_PLAYING = 1
     private var mPlayPauseToggleButton: Button?=null
     private lateinit var aCH:AudioControlHelper
-    private lateinit var playlist:PlaylistManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        playlist=PlaylistManager(this).also { it.build() }
-        aCH=AudioControlHelper(this){state: Int ->
+
+        aCH=AudioControlHelper(){state: Int ->
             when(state){
                 STATE_PAUSED -> mPlayPauseToggleButton?.text="Play"
                 STATE_PLAYING -> mPlayPauseToggleButton?.text="Pause"
             }
 
         }
-        aCH.build()
+        aCH.build(this)
 
         mPlayPauseToggleButton = findViewById<View>(R.id.button) as Button
         mPlayPauseToggleButton!!.setOnClickListener {
@@ -40,11 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-       // aCH.onDestroy()
-    }
-
-    fun prevBtn(view: View) {
-        aCH.prevBTN()
+        aCH.onDestroy()
     }
 
 
